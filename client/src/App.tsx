@@ -68,14 +68,10 @@ function App() {
 
 		formData.append('file', file, file.name)
 
-		const data = await fetch(`https://${window.location.hostname}:3000/api/upload-ebook`, {
-			// Replace with your API endpoint
-			method: 'POST',
-			body: formData,
-		})
-			.then(response => {
-				response.json().then(console.log)
+		const url = `https://${window.location.hostname}:3000/api/upload-ebook`
 
+		const data = await fetch(url, {method: 'POST', body: formData})
+			.then(response => {
 				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
 				return response.json()

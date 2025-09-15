@@ -43,8 +43,6 @@ app.use(cors())
 app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: Response) => {
 	const validationResult = FileUploadSchema.safeParse(req.file)
 
-	console.log('file', typeof req.file, req.file, validationResult)
-
 	if (!validationResult.success)
 		return res.status(400).json({
 			error: 'Invalid file uploaded.',
@@ -53,38 +51,22 @@ app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: R
 
 	const file = validationResult.data
 
-	try {
-		const zip = new AdmZip(Buffer.from(await file.arrayBuffer()))
-		const zipEntries = zip.getEntries()
+	const zip = new AdmZip(Buffer.from(await file.arrayBuffer()))
+	const zipEntries = zip.getEntries()
 
-		const textDirEntry = zipEntries.find(
-			entry => !entry.isDirectory && entry.entryName.startsWith('OEBPS/text')
-		)
+	const textFiles = zipEntries
+		.filter(entry => entry.entryName.startsWith('OEBPS/text') && !entry.isDirectory)
+		.map(entry => path.basename(entry.entryName)) // Get just the filename
 
-		if (!textDirEntry)
-			return res.status(404).json({error: "A 'text' directory was not found in the EPUB."})
+	if (textFiles.length) return res.status(200).json({files: textFiles})
 
-		const textDirPath = textDirEntry.entryName
-
-		const filesInTextDir = zipEntries
-			.filter(entry => entry.entryName.startsWith(textDirPath) && !entry.isDirectory)
-			.map(entry => path.basename(entry.entryName)) // Get just the filename
-
-		res.status(200).json({
-			message: 'EPUB processed successfully!',
-			textDirectoryPath: textDirPath,
-			files: filesInTextDir,
-		})
-	} catch (error) {
-		console.error('Error processing file:', error)
-		res.status(500).json({
-			error: 'Could not process the EPUB file. It might be corrupt or not a valid zip archive.',
-		})
-	}
+	res.status(500).json({
+		error: 'Did not find any text files.',
+		debug: {filePaths: zipEntries.map(entry => entry.entryName)},
+	})
 })
 
 // --- Start the Server ---
 https.createServer(options, app).listen(port, '0.0.0.0', () => {
 	console.log(`Server is listening on https://localhost:${port}`)
 })
-
