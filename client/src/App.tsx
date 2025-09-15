@@ -59,8 +59,30 @@ function App() {
 	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
 		setFile((event.currentTarget.files ?? [undefined])[0])
 
-	const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
+
+		if (!file) return // @todo add error, but this shouldn't happen due to disabled.
+
+		const formData = new FormData()
+
+		formData.append('file', file, file.name)
+
+		const data = await fetch(`https://${window.location.hostname}:3000/api/upload-ebook`, {
+			// Replace with your API endpoint
+			method: 'POST',
+			body: formData,
+		})
+			.then(response => {
+				response.json().then(console.log)
+
+				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+				return response.json()
+			})
+			.catch(console.error)
+
+		console.log(data)
 
 		/** @todo upload epub, unzip, get all text files, return list to the client, client: load each file (WITH proper CSS), query the iframe, draw all found text to images, replace the markup (including the alt text source) with new image markup using the .kindle-full-line-image images/file-img-#.ext format for the source, send images and the new XHTML off to the server, send new CSS to server, server (just add a new css file and link to it in every xhtml document to ensure the rules are applied everywhere where a query is matched--ignore files where the contents remain unchanged): add these files to a new zip and export the epub (with a validation step at the end?), send a download link to the client, client initiate an auto download (might not be able to do that without the click... gotta keep the onSubmit event open the whole time?) download name = file.name-pre-converted-accessible-kindle.epub */
 	}
