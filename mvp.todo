@@ -1,0 +1,35 @@
+[x] client
+	[x] + file button
+	[x] check that a file is in state
+	[x] +CSS rules UI
+	[x] validate the CSS rules
+	[x] ensure that at least *one* replacement rule is set (otherwise the process is pointless)
+	[x] send data to the server
+	[x] +custom CSS
+	[x] disable submit button if there are validation errors
+	[x] upload file to server
+		[x] +HTTPS
+		[x] +.env file
+[x] sever
+	[x] +HTTPS
+	[x] CORS
+	[x] validate formData upload
+	[x] open zip file
+	[x] find all files in text/
+	[x] return list of files to client
+[] client
+	[] load each file (WITH proper CSS to determine text styles))
+	[] query the iframe
+	[] draw all found text to images
+	[] list generated images in below in an output section (under the file name in which they appear),
+	[] replace the markup (including the alt text source) with new image markup using the .kindle-full-line-image images/file-img-#.ext format for the source
+	[] send images and the new XHTML off to the server, send new CSS to server
+[] server
+	[] only add a new css file and link to it in every xhtml document to ensure the rules are applied [] everywhere where a query is matched--ignore files where the contents remain unchanged)
+	[] add these files to a new zip
+	[] export the epub
+	[] validate the epub (should this have been done at the beginning of upload process)
+	[] send a download link to the client
+[] client
+	[] initiate an auto download (might not be able to do that without the click... gotta keep the onSubmit event open the whole time?)
+	[] download name = file.name-pre-converted-accessible-kindle.epub
