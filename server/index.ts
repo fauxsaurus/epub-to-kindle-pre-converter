@@ -4,8 +4,8 @@ import dotenv from 'dotenv'
 import express, {type Request, type Response} from 'express'
 import fs from 'fs'
 import https from 'https'
+import mime from 'mime-types'
 import multer from 'multer'
-import path from 'path'
 import {z} from 'zod'
 
 dotenv.config()
@@ -38,6 +38,8 @@ const port = 3000
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
 
+const state: {zip?: AdmZip} = {}
+
 app.use(cors())
 
 app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: Response) => {
@@ -51,19 +53,31 @@ app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: R
 
 	const file = validationResult.data
 
-	const zip = new AdmZip(Buffer.from(await file.arrayBuffer()))
-	const zipEntries = zip.getEntries()
+	state.zip = new AdmZip(Buffer.from(await file.arrayBuffer()))
 
-	const textFiles = zipEntries
+	const textFiles = state.zip
+		.getEntries()
 		.filter(entry => entry.entryName.startsWith('OEBPS/text') && !entry.isDirectory)
-		.map(entry => path.basename(entry.entryName)) // Get just the filename
+		.map(entry => entry.entryName) // Get just the filename
 
 	if (textFiles.length) return res.status(200).json({files: textFiles})
 
 	res.status(500).json({
 		error: 'Did not find any text files.',
-		debug: {filePaths: zipEntries.map(entry => entry.entryName)},
+		debug: {filePaths: state.zip.getEntries().map(entry => entry.entryName)},
 	})
+})
+
+/** @note Serves epub files directly from zip. */
+app.get('/*filepath', async (req: Request, res: Response) => {
+	const filePath = (req.params.filepath as unknown as []).join('/')
+
+	const zipEntry = state.zip?.getEntry(filePath)
+	if (!zipEntry) return res.status(404).json({error: `File "${filePath}" not found.`})
+
+	const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
+
+	res.status(200).setHeader('Content-Type', mimeType).send(zipEntry.getData())
 })
 
 // --- Start the Server ---

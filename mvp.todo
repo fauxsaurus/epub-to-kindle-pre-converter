@@ -17,8 +17,9 @@
 	[x] open zip file
 	[x] find all files in text/
 	[x] return list of files to client
+	[x] serve files directly from zip folder
 [] client
-	[] load each file (WITH proper CSS to determine text styles))
+	[] load each file (WITH proper CSS to determine text styles)
 	[] query the iframe
 	[] draw all found text to images
 	[] list generated images in below in an output section (under the file name in which they appear),
