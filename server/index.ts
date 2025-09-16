@@ -1,5 +1,4 @@
 import AdmZip from 'adm-zip'
-import cors from 'cors'
 import dotenv from 'dotenv'
 import express, {type Request, type Response} from 'express'
 import fs from 'fs'
@@ -40,8 +39,6 @@ const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
 
 const state: {zip?: AdmZip} = {}
-
-app.use(cors())
 
 app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: Response) => {
 	const validationResult = FileUploadSchema.safeParse(req.file)
