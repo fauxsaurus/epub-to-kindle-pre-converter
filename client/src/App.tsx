@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 
 type ICssClass = string
 type ICssQuery = string
@@ -100,7 +100,7 @@ function App() {
 				<li>Need at least one Image Text CSS Query.</li>
 			</ul>
 
-			{text2convert.concat([REPLACEMENT_TEXT_TEMPLATE]).map((replacementText, i, array) => {
+			{text2convert.concat([REPLACEMENT_TEXT_TEMPLATE]).map((replacementText, i) => {
 				const updateReplacementText = (replacementText: IReplacementText) => {
 					if (replacementText.altText || replacementText.imageText)
 						return setText2convert(
