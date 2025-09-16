@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 
 type ICssClass = string
 type ICssQuery = string
@@ -42,6 +42,7 @@ function App() {
 		},
 	])
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
+	const [files2convert, setFiles2convert] = useState<string[]>([])
 
 	const atLeastOneQuery = !!text2convert.length
 	const replacementValidationErrors = text2convert.map(replacementText => {
@@ -70,15 +71,13 @@ function App() {
 
 		const url = `https://${window.location.hostname}:3000/api/upload-ebook`
 
-		const data = await fetch(url, {method: 'POST', body: formData})
-			.then(response => {
+		await fetch(url, {method: 'POST', body: formData})
+			.then(async response => {
 				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
-				return response.json()
+				setFiles2convert((await response.json()).files ?? [])
 			})
 			.catch(console.error)
-
-		console.log(data)
 	}
 
 	return (
@@ -186,6 +185,12 @@ function App() {
 			>
 				Convert
 			</button>
+			<output>{files2convert.join(', ')}</output>
+			{!!files2convert.length && (
+				<iframe
+					src={`https://${window.location.hostname}:3000/${files2convert[0]}`}
+				></iframe>
+			)}
 		</form>
 	)
 }

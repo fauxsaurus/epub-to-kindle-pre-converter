@@ -19,6 +19,7 @@
 	[x] return list of files to client
 	[x] serve files directly from zip folder
 [] client
+	[x] load a file (WITH proper CSS to determine text styles)
 	[] load each file (WITH proper CSS to determine text styles)
 	[] query the iframe
 	[] draw all found text to images
@@ -34,3 +35,5 @@
 [] client
 	[] initiate an auto download (might not be able to do that without the click... gotta keep the onSubmit event open the whole time?)
 	[] download name = file.name-pre-converted-accessible-kindle.epub
+[] cleanup
+	[] share server port between client and server
