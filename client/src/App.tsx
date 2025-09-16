@@ -188,6 +188,29 @@ function App() {
 			<output>{files2convert.join(', ')}</output>
 			{!!files2convert.length && (
 				<iframe
+					onLoad={event => {
+						const doc =
+							event.currentTarget.contentDocument ||
+							event.currentTarget.contentWindow?.document
+
+						if (!doc) return console.log('no doc...')
+
+						const images2make = text2convert.flatMap(replacementText => {
+							const imgTexts = doc.querySelectorAll(replacementText.imageText)
+							const altTexts = replacementText.altText
+								? doc.querySelectorAll(replacementText.altText)
+								: []
+							const {className} = replacementText
+
+							return Array.from(imgTexts).map((imgText, i) => {
+								const altText =
+									altTexts[i] ?? imgText.innerHTML.replace(/<\w[^>]+>/g, '')
+								return {imgText, altText, className}
+							})
+						})
+
+						if (!images2make.length) return setFiles2convert(files2convert.slice(1))
+					}}
 					src={window.location.origin + '/' + files2convert[0]}
 				></iframe>
 			)}
