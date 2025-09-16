@@ -6,6 +6,7 @@ import fs from 'fs'
 import https from 'https'
 import mime from 'mime-types'
 import multer from 'multer'
+import path from 'path'
 import {z} from 'zod'
 
 dotenv.config()
@@ -70,7 +71,19 @@ app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: R
 
 /** @note Serves epub files directly from zip. */
 app.get('/*filepath', async (req: Request, res: Response) => {
-	const filePath = (req.params.filepath as unknown as []).join('/')
+	const filePath = (req.params.filepath as unknown as []).join('/') || 'index.html'
+
+	/** @note serve client files */
+	if (!filePath.includes('/') || filePath.includes('assets/')) {
+		const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
+
+		console.log(path.join(process.cwd(), `/client/dist/${filePath}`))
+
+		return res
+			.status(200)
+			.setHeader('Content-Type', mimeType)
+			.sendFile(path.join(process.cwd(), `/client/dist/${filePath}`))
+	}
 
 	const zipEntry = state.zip?.getEntry(filePath)
 	if (!zipEntry) return res.status(404).json({error: `File "${filePath}" not found.`})

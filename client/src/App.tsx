@@ -69,7 +69,7 @@ function App() {
 
 		formData.append('file', file, file.name)
 
-		const url = `https://${window.location.hostname}:3000/api/upload-ebook`
+		const url = `${window.location.origin}/api/upload-ebook`
 
 		await fetch(url, {method: 'POST', body: formData})
 			.then(async response => {
@@ -188,7 +188,7 @@ function App() {
 			<output>{files2convert.join(', ')}</output>
 			{!!files2convert.length && (
 				<iframe
-					src={`https://${window.location.hostname}:3000/${files2convert[0]}`}
+					src={window.location.origin + '/' + files2convert[0]}
 				></iframe>
 			)}
 		</form>
