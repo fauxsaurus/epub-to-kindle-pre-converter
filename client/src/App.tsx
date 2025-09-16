@@ -22,6 +22,55 @@ const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and be
 	width: 100%;
 }`
 
+/** @note `computedStyleMap()` is only avilable in chrome*/
+const el2img = async (el: Element) => {
+	const styleMap = el.computedStyleMap()
+	const style = Array.from(styleMap)
+		.map(([prop, value]) => `${prop}: ${(Array.from(value)[0] + '').replace(/"/g, `'`)};`)
+		.join(' ')
+	// + 'margin: 0' // @note
+
+	const {height: h, width: w} = el.getBoundingClientRect()
+	const type = el.tagName.toLocaleLowerCase()
+
+	const marginTop = parseInt(styleMap.get('margin-top')!.toString()!.match(/^\d+/)?.[0] ?? '0')
+	const marginBottom = parseInt(
+		styleMap.get('margin-bottom')!.toString()!.match(/^\d+/)?.[0] ?? '0'
+	)
+	const marginLeft = parseInt(styleMap.get('margin-left')!.toString()!.match(/^\d+/)?.[0] ?? '0')
+	const marginRight = parseInt(
+		styleMap.get('margin-right')!.toString()!.match(/^\d+/)?.[0] ?? '0'
+	)
+
+	const width = ~~w + marginLeft + marginRight
+	const height = ~~h + marginBottom + marginTop
+
+	const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+		<foreignObject width="100%" height="100%">
+			<${type} xmlns="http://www.w3.org/1999/xhtml" style="${style}">${el.innerHTML}</${type}>
+		</foreignObject>
+	</svg>`
+
+	const src = `data:image/svg+xml,${encodeURIComponent(svgString)}`
+	const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+		const image = new Image()
+
+		image.onload = () => resolve(image)
+		image.onerror = () => reject(new Error(`Failed to load image from ${src}`))
+
+		image.src = src
+	})
+
+	const canvas = new OffscreenCanvas(width, height)
+	canvas.getContext('2d')!.fillStyle = '#fff'
+	canvas.getContext('2d')!.fillRect(0, 0, width, height)
+	canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+
+	const blob = await canvas.convertToBlob({type: 'image/jpeg', quality: 0.7})
+
+	console.log(URL.createObjectURL(blob))
+}
+
 function App() {
 	const [file, setFile] = useState<File | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>([
@@ -188,7 +237,7 @@ function App() {
 			<output>{files2convert.join(', ')}</output>
 			{!!files2convert.length && (
 				<iframe
-					onLoad={event => {
+					onLoad={async event => {
 						const doc =
 							event.currentTarget.contentDocument ||
 							event.currentTarget.contentWindow?.document
@@ -203,15 +252,22 @@ function App() {
 							const {className} = replacementText
 
 							return Array.from(imgTexts).map((imgText, i) => {
-								const altText =
-									altTexts[i] ?? imgText.innerHTML.replace(/<\w[^>]+>/g, '')
+								const altText = (altTexts[i] ?? imgText).innerHTML.replace(
+									/<\w[^>]+>/g,
+									''
+								)
 								return {imgText, altText, className}
 							})
 						})
 
 						if (!images2make.length) return setFiles2convert(files2convert.slice(1))
+
+						const el = images2make[0].imgText
+
+						el2img(el)
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
+					width="1000"
 				></iframe>
 			)}
 		</form>

@@ -37,3 +37,7 @@
 	[] initiate an auto download (might not be able to do that without the click... gotta keep the onSubmit event open the whole time?)
 	[] download name = file.name-pre-converted-accessible-kindle.epub
 [] cleanup
+[] UX
+	[] Allow users to specify the output image resolution
+	[] ensure that no styling contaminates the generated SVGs
+	[] Line wrap long text
