@@ -1,9 +1,19 @@
 import {useState} from 'react'
+import {el2imgBlob} from './lib/util'
 
 type ICssClass = string
 type ICssQuery = string
 type ICssRules = string
+type IUrl = string
+
 type IReplacementText = {altText: ICssQuery | ''; className: ICssClass; imageText: ICssQuery}
+type IConvertedImg = {
+	altText: string
+	blob: Blob
+	className: ICssClass
+	src: IUrl
+	previewUrl: IUrl
+}
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
 
@@ -11,6 +21,7 @@ const validateCssQuery = (query: ICssQuery) => {
 	try {
 		document.querySelector(query)
 		return true
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (_) {
 		return false
 	}
@@ -18,58 +29,9 @@ const validateCssQuery = (query: ICssQuery) => {
 
 const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and below. */
 .kindle-accessible-image {	
-	margin: 1rem 0;
+	margin: 0 auto;
 	width: 100%;
 }`
-
-/** @note `computedStyleMap()` is only avilable in chrome*/
-const el2imgUrl = async (el: Element) => {
-	const styleMap = el.computedStyleMap()
-	const style = Array.from(styleMap)
-		.map(([prop, value]) => `${prop}: ${(Array.from(value)[0] + '').replace(/"/g, `'`)};`)
-		.join(' ')
-	// + 'margin: 0' // @note
-
-	const {height: h, width: w} = el.getBoundingClientRect()
-	const type = el.tagName.toLocaleLowerCase()
-
-	const marginTop = parseInt(styleMap.get('margin-top')!.toString()!.match(/^\d+/)?.[0] ?? '0')
-	const marginBottom = parseInt(
-		styleMap.get('margin-bottom')!.toString()!.match(/^\d+/)?.[0] ?? '0'
-	)
-	const marginLeft = parseInt(styleMap.get('margin-left')!.toString()!.match(/^\d+/)?.[0] ?? '0')
-	const marginRight = parseInt(
-		styleMap.get('margin-right')!.toString()!.match(/^\d+/)?.[0] ?? '0'
-	)
-
-	const width = ~~w + marginLeft + marginRight
-	const height = ~~h + marginBottom + marginTop
-
-	const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-		<foreignObject width="100%" height="100%">
-			<${type} xmlns="http://www.w3.org/1999/xhtml" style="${style}">${el.innerHTML}</${type}>
-		</foreignObject>
-	</svg>`
-
-	const src = `data:image/svg+xml,${encodeURIComponent(svgString)}`
-	const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-		const image = new Image()
-
-		image.onload = () => resolve(image)
-		image.onerror = () => reject(new Error(`Failed to load image from ${src}`))
-
-		image.src = src
-	})
-
-	const canvas = new OffscreenCanvas(width, height)
-	canvas.getContext('2d')!.fillStyle = '#fff'
-	canvas.getContext('2d')!.fillRect(0, 0, width, height)
-	canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
-
-	const blob = await canvas.convertToBlob({type: 'image/jpeg', quality: 0.7})
-
-	return URL.createObjectURL(blob)
-}
 
 function App() {
 	const [file, setFile] = useState<File | undefined>(undefined)
@@ -92,7 +54,7 @@ function App() {
 	])
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 	const [files2convert, setFiles2convert] = useState<string[]>([])
-	const [imgUrls, setImgUrls] = useState<string[]>([])
+	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
 
 	const atLeastOneQuery = !!text2convert.length
 	const replacementValidationErrors = text2convert.map(replacementText => {
@@ -263,19 +225,38 @@ function App() {
 
 						if (!images2make.length) return setFiles2convert(files2convert.slice(1))
 
+						const baseSrc = files2convert[0]
+							.split('/')
+							.slice(-1)[0]
+							.split('.')
+							.slice(0, -1)
+							.join('.')
+
 						const newImgUrls = await Promise.all(
-							images2make.map(async img2make => el2imgUrl(img2make.imgText))
+							images2make.map(async ({altText, className, imgText}, i) => {
+								const blob = await el2imgBlob(imgText)
+								const previewUrl = URL.createObjectURL(blob)
+
+								const src = `img-${baseSrc}-${i + 1}.jpg`
+
+								return {altText, blob, className, src, previewUrl}
+							})
 						)
 
-						setImgUrls(imgUrls.concat(newImgUrls))
+						setConvertedImgs(convertedImgs.concat(newImgUrls))
 						setFiles2convert(files2convert.slice(1))
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
 					width="1000"
 				></iframe>
 			)}
-			{imgUrls.map(url => (
-				<img key={url} src={url} />
+			{convertedImgs.map(imgData => (
+				<img
+					alt={imgData.altText}
+					key={imgData.previewUrl}
+					src={imgData.previewUrl}
+					title={imgData.altText}
+				/>
 			))}
 		</form>
 	)
