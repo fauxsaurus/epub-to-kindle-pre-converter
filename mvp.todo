@@ -23,8 +23,8 @@
 	[x] run from the server to prevent cross-origin issues preventing <iframe> examination
 	[x] load each file
 	[x] successfully query the iframe
-	[] draw all found text to images
-	[] list generated images in below in an output section (under the file name in which they appear),
+	[x] draw all found text to images
+	[x] list generated images in below in an output section (under the file name in which they appear),
 	[] replace the markup (including the alt text source) with new image markup using the .kindle-full-line-image images/file-img-#.ext format for the source
 	[] send images and the new XHTML off to the server, send new CSS to server
 [] server (bundle new epub)

@@ -23,7 +23,7 @@ const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and be
 }`
 
 /** @note `computedStyleMap()` is only avilable in chrome*/
-const el2img = async (el: Element) => {
+const el2imgUrl = async (el: Element) => {
 	const styleMap = el.computedStyleMap()
 	const style = Array.from(styleMap)
 		.map(([prop, value]) => `${prop}: ${(Array.from(value)[0] + '').replace(/"/g, `'`)};`)
@@ -68,7 +68,7 @@ const el2img = async (el: Element) => {
 
 	const blob = await canvas.convertToBlob({type: 'image/jpeg', quality: 0.7})
 
-	console.log(URL.createObjectURL(blob))
+	return URL.createObjectURL(blob)
 }
 
 function App() {
@@ -92,6 +92,7 @@ function App() {
 	])
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 	const [files2convert, setFiles2convert] = useState<string[]>([])
+	const [imgUrls, setImgUrls] = useState<string[]>([])
 
 	const atLeastOneQuery = !!text2convert.length
 	const replacementValidationErrors = text2convert.map(replacementText => {
@@ -264,12 +265,17 @@ function App() {
 
 						const el = images2make[0].imgText
 
-						el2img(el)
+						setImgUrls(imgUrls.concat(await el2imgUrl(el)))
+
+						setFiles2convert(files2convert.slice(1))
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
 					width="1000"
 				></iframe>
 			)}
+			{imgUrls.map(url => (
+				<img key={url} src={url} />
+			))}
 		</form>
 	)
 }
