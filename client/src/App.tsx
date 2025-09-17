@@ -263,10 +263,11 @@ function App() {
 
 						if (!images2make.length) return setFiles2convert(files2convert.slice(1))
 
-						const el = images2make[0].imgText
+						const newImgUrls = await Promise.all(
+							images2make.map(async img2make => el2imgUrl(img2make.imgText))
+						)
 
-						setImgUrls(imgUrls.concat(await el2imgUrl(el)))
-
+						setImgUrls(imgUrls.concat(newImgUrls))
 						setFiles2convert(files2convert.slice(1))
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
