@@ -1,19 +1,7 @@
 import {useState} from 'react'
 import {el2imgBlob} from './lib/util'
 
-type ICssClass = string
-type ICssQuery = string
-type ICssRules = string
-type IUrl = string
-
-type IReplacementText = {altText: ICssQuery | ''; className: ICssClass; imageText: ICssQuery}
-type IConvertedImg = {
-	altText: string
-	blob: Blob
-	className: ICssClass
-	src: IUrl
-	previewUrl: IUrl
-}
+import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
 
