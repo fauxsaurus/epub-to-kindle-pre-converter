@@ -25,9 +25,15 @@
 	[x] successfully query the iframe
 	[x] draw all found text to images
 	[x] list generated images in below in an output section (under the file name in which they appear),
-	[] replace the markup (including the alt text source) with new image markup using the .kindle-full-line-image images/file-img-#.ext format for the source
-	[] send images and the new XHTML off to the server, send new CSS to server
+	[x] replace the markup
+		[x] remove alt text markup (if it exists)
+		[x] append image markup after source text (url format: images/file-img-#.ext)
+		[x] remove source text
+		[x] add new CSS to the page
+		[x] get page HTML
+	[] send new images, pages, and CSS to the server
 [] server (bundle new epub)
+	[] if no images or style folders exist, add them
 	[] only add a new css file and link to it in every xhtml document to ensure the rules are applied [] everywhere where a query is matched--ignore files where the contents remain unchanged)
 	[] add these files to a new zip
 	[] export the epub
@@ -42,3 +48,4 @@
 	[] Allow users to specify the output image resolution
 	[] ensure that no styling contaminates the generated SVGs
 	[] Line wrap long text
+	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding

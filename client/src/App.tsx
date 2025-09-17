@@ -1,6 +1,5 @@
 import {useState} from 'react'
-import {el2imgBlob} from './lib/util'
-
+import {processPage} from './lib/process-page'
 import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
@@ -195,24 +194,6 @@ function App() {
 
 						if (!doc) return console.log('no doc...')
 
-						const images2make = text2convert.flatMap(replacementText => {
-							const imgTexts = doc.querySelectorAll(replacementText.imageText)
-							const altTexts = replacementText.altText
-								? doc.querySelectorAll(replacementText.altText)
-								: []
-							const {className} = replacementText
-
-							return Array.from(imgTexts).map((imgText, i) => {
-								const altText = (altTexts[i] ?? imgText).innerHTML.replace(
-									/<\w[^>]+>/g,
-									''
-								)
-								return {imgText, altText, className}
-							})
-						})
-
-						if (!images2make.length) return setFiles2convert(files2convert.slice(1))
-
 						const baseSrc = files2convert[0]
 							.split('/')
 							.slice(-1)[0]
@@ -220,18 +201,9 @@ function App() {
 							.slice(0, -1)
 							.join('.')
 
-						const newImgUrls = await Promise.all(
-							images2make.map(async ({altText, className, imgText}, i) => {
-								const blob = await el2imgBlob(imgText)
-								const previewUrl = URL.createObjectURL(blob)
+						const {imgs} = await processPage(doc, baseSrc, text2convert)
 
-								const src = `img-${baseSrc}-${i + 1}.jpg`
-
-								return {altText, blob, className, src, previewUrl}
-							})
-						)
-
-						setConvertedImgs(convertedImgs.concat(newImgUrls))
+						setConvertedImgs(convertedImgs.concat(imgs))
 						setFiles2convert(files2convert.slice(1))
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
