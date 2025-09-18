@@ -34,11 +34,11 @@
 	[x] send new images, pages, and CSS to the server
 [] server (bundle new epub)
 	[x] accept incoming files
-	[] if no images or style folders exist, add them
-	[] add new CSS to new zip
-	[] add images to new zip
-	[] add new HTML to new zip
+	[x] update HTML files
+	[x] add new CSS to new zip
+	[x] add images to new zip
 	[] export the epub
+	[] verify that the contents truly changed
 	[] validate the epub (should this have been done at the beginning of upload process)
 	[] send a download link to the client
 [] client (download new epub)

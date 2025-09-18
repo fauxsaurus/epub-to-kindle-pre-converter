@@ -81,6 +81,8 @@ app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: R
 })
 
 app.post(ROUTES.uploadFiles, upload.array('files'), async (req, res) => {
+	if (!state.zip) return res.status(428).json({error: 'Upload an eBook first.'})
+
 	const validationResult = z.array(FilesUploadSchema).safeParse(req.files)
 	if (!validationResult.success)
 		return res.status(400).json({
@@ -89,6 +91,26 @@ app.post(ROUTES.uploadFiles, upload.array('files'), async (req, res) => {
 		})
 
 	const files = validationResult.data
+	const newFileNames = files.map(file => file.originalname)
+	const oldFileNames = state.zip
+		.getEntries()
+		.map(entry => entry.entryName.split('/').slice(-1)[0])
+
+	newFileNames.map((newFileName, newFileI) => {
+		const {buffer} = files[newFileI]
+		const oldEntryI = oldFileNames.indexOf(newFileName)
+
+		// insert file
+		if (oldEntryI === -1)
+			return void state.zip!.addFile('OEBPS/kindle-accessible/' + newFileName, buffer)
+
+		// update file
+		const fullPath = state.zip!.getEntries()[oldEntryI].entryName
+
+		state.zip!.updateFile(fullPath, buffer)
+	})
+
+	res.status(200).json({filesUpdated: true})
 })
 
 /** @note Serves epub files directly from zip. */
