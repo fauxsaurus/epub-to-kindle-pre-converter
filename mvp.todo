@@ -32,7 +32,7 @@
 		[x] add new CSS to the page
 		[x] get page HTML
 	[x] send new images, pages, and CSS to the server
-[] server (bundle new epub)
+[x] server (bundle new epub)
 	[x] accept incoming files
 	[x] update HTML files
 	[x] add new CSS to new zip
@@ -49,8 +49,9 @@
 	[] improve error handling on all HTTP requests
 	[x] share api/upload-files between client/server
 [] UX
+	[x] Allow users to specify custom pre CSS (to get a larger text size on the images)
 	[] Allow users to specify the output image resolution
 	[] make the CSS styles path configurable
 	[] ensure that no styling contaminates the generated SVGs
-	[] Line wrap long text
+	[x] Line wrap long text
 	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding

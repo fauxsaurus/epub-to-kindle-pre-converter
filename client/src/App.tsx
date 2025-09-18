@@ -16,7 +16,15 @@ const validateCssQuery = (query: ICssQuery) => {
 	}
 }
 
-const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and below. */
+const DEFAULT_PRE_CSS_RULES = `/** @note adjusts text *before* conversion for better image optimization */
+.braille,.runes,[lang="ko"] {
+	margin: 1rem auto;
+	font-size: 1.75rem;
+	text-align: center;
+}
+`
+
+const DEFAULT_POST_CSS_RULES = `/** @note Full-width image with one line above and below. */
 .kindle-accessible-image {
 	margin: 0 auto;
 	width: 100%;
@@ -53,7 +61,8 @@ const downloadEbook = (download: IFileName, blob: Blob) => {
 function App() {
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
-	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
+	const [preCSS, setPreCSS] = useState<ICssRules>(DEFAULT_PRE_CSS_RULES)
+	const [postCSS, setPostCSS] = useState<ICssRules>(DEFAULT_POST_CSS_RULES)
 
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
@@ -80,7 +89,7 @@ function App() {
 		// concat files
 		const files: [IFileName, Blob][] = [
 			/** @note this name cannot be in the epub already (in order to prevent overwriting existing files) */
-			['kindle-accessible-img-styles.css', text2blob({css: cssRules})],
+			['kindle-accessible-img-styles.css', text2blob({css: postCSS})],
 			...Object.entries(updatedHTML).map(
 				([src, html]) => [src, text2blob({html})] as [IFileName, Blob]
 			),
@@ -101,7 +110,7 @@ function App() {
 	}, [
 		convertedImgs,
 		convertedImgs.length,
-		cssRules,
+		postCSS,
 		files2convert.length,
 		oldEbook?.name,
 		updatedHTML,
@@ -210,14 +219,23 @@ function App() {
 				)
 			})}
 
-			<label htmlFor="css-rules">Custom CSS</label>
+			<label htmlFor="pre-css">Custom Pre CSS</label>
 			<textarea
 				cols={80}
 				rows={6}
-				id="css-rules"
-				name="css-rules"
-				onChange={event => setCssRules(event.currentTarget.value)}
-				value={cssRules}
+				id="pre-css"
+				name="pre-css"
+				onChange={event => setPreCSS(event.currentTarget.value)}
+				value={preCSS}
+			></textarea>
+			<label htmlFor="post-css">Custom Post CSS</label>
+			<textarea
+				cols={80}
+				rows={6}
+				id="post-css"
+				name="post-css"
+				onChange={event => setPostCSS(event.currentTarget.value)}
+				value={postCSS}
 			></textarea>
 
 			<button
@@ -239,9 +257,13 @@ function App() {
 						if (!doc) return console.log('no doc...')
 
 						const fileName = files2convert[0].split('/').slice(-1)[0]
-						const baseSrc = fileName.split('.').slice(0, -1).join('.')
+						const pageName = fileName.split('.').slice(0, -1).join('.')
 
-						const {html, imgs} = await processPage(doc, baseSrc, text2convert)
+						const {html, imgs} = await processPage(
+							doc,
+							{pageName, preCSS},
+							text2convert
+						)
 
 						setConvertedImgs(convertedImgs.concat(imgs))
 						setFiles2convert(files2convert.slice(1))

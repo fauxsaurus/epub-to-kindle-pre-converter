@@ -1,10 +1,10 @@
 import {el2imgBlob} from './el2img-blob'
 import {getFile} from './request'
-import type {IReplacementText} from './types'
+import type {ICssRules, IReplacementText} from './types'
 
 export const processPage = async (
 	doc: Document,
-	pageName: string,
+	{preCSS, pageName}: {preCSS: ICssRules; pageName: string},
 	text2convert: IReplacementText[]
 ) => {
 	// query elements to replace
@@ -22,23 +22,26 @@ export const processPage = async (
 
 	if (!elements2replace.length) return {html: '', imgs: []}
 
+	const style = Object.assign(doc.createElement('style'), {innerHTML: preCSS})
+	if (preCSS) doc.head.append(style)
+
 	// generate images
 	const imgs = await Promise.all(
 		elements2replace.map(async ({altTextEl, className, imgText}, i) => {
-			const altText = getAltText(altTextEl ?? imgText)
+			const alt = getAltText(altTextEl ?? imgText)
 			const blob = await el2imgBlob(imgText)
 			const previewUrl = URL.createObjectURL(blob)
 			const src = `../kindle-accessible/img-${pageName}-${i + 1}.jpg`
-
-			const alt = altText
 
 			altTextEl?.remove()
 			imgText.after(Object.assign(doc.createElement('img'), {alt, class: className, src}))
 			imgText.remove()
 
-			return {altText, blob, className, src, previewUrl}
+			return {altText: alt, blob, className, src, previewUrl}
 		})
 	)
+
+	if (preCSS) style.remove()
 
 	// get new HTML
 	doc.head.innerHTML += `<link href="../kindle-accessible/style.css" rel="stylesheet" type="text/css"/>`
