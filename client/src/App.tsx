@@ -19,26 +19,27 @@ const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and be
 	margin: 0 auto;
 	width: 100%;
 }`
+const TMP_CSS_RULES: IReplacementText[] = [
+	{
+		altText: '.braille+.screen-reader-only',
+		className: 'kindle-accessible-image',
+		imageText: '.braille',
+	},
+	{
+		altText: '.runes+.screen-reader-only',
+		className: 'kindle-accessible-image',
+		imageText: '.runes',
+	},
+	{
+		altText: '',
+		className: 'kindle-accessible-image',
+		imageText: '[lang="ko"]',
+	},
+]
 
 function App() {
 	const [file, setFile] = useState<File | undefined>(undefined)
-	const [text2convert, setText2convert] = useState<IReplacementText[]>([
-		{
-			altText: '.braille+.screen-reader-only',
-			className: 'kindle-accessible-image',
-			imageText: '.braille',
-		},
-		{
-			altText: '.runes+.screen-reader-only',
-			className: 'kindle-accessible-image',
-			imageText: '.runes',
-		},
-		{
-			altText: '',
-			className: 'kindle-accessible-image',
-			imageText: '[lang="ko"]',
-		},
-	])
+	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
