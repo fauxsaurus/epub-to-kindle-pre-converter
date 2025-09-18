@@ -37,15 +37,16 @@
 	[x] update HTML files
 	[x] add new CSS to new zip
 	[x] add images to new zip
-	[] export the epub
-	[] verify that the contents truly changed
+	[x] client: download the file
+	[x] send the epub
+	[x] verify that the contents truly changed
 	[] validate the epub (should this have been done at the beginning of upload process)
-	[] send a download link to the client
-[] client (download new epub)
-	[] initiate an auto download (might not be able to do that without the click... gotta keep the onSubmit event open the whole time?)
-	[] download name = file.name-pre-converted-accessible-kindle.epub
+[x] client (download new epub)
+	[x] initiate an auto download (might not be able to do that without the click... not a problem with `.click()`)
+	[x] download name = file.name-pre-converted-accessible-kindle.epub
 [] cleanup
 	[] revoke preview urls when clearing them
+	[] improve error handling on all HTTP requests
 	[x] share api/upload-files between client/server
 [] UX
 	[] Allow users to specify the output image resolution

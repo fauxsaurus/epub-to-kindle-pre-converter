@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
 import {processPage} from './lib/process-page'
-import {uploadFiles} from './lib/request'
+import {getFile, uploadFiles} from './lib/request'
 import type {IConvertedImg, ICssQuery, ICssRules, IFileName, IReplacementText} from './lib/types'
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
@@ -41,6 +41,9 @@ const TMP_CSS_RULES: IReplacementText[] = [
 	},
 ]
 
+const downloadEbook = (download: IFileName, blob: Blob) => {
+	const href = URL.createObjectURL(blob)
+	const link = Object.assign(document.createElement('a'), {download, hidden: true, href})
 
 	document.body.appendChild(link).click()
 
@@ -49,7 +52,6 @@ const TMP_CSS_RULES: IReplacementText[] = [
 
 function App() {
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
-	const [newEbook, setNewEbook] = useState<Blob | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 
@@ -70,7 +72,7 @@ function App() {
 		return validationErrors
 	})
 
-	// upload files (when ready)
+	// upload files (when ready) and download new epub
 	useEffect(() => {
 		// conversion in progress or the user has not clicked covert
 		if (files2convert.length || !convertedImgs.length) return
@@ -85,20 +87,25 @@ function App() {
 			...convertedImgs.map(imgData => [imgData.src, imgData.blob] as [IFileName, Blob]),
 		]
 
-		uploadFiles<{ebook?: File}>(ROUTES.uploadFiles, {}, files).then(result =>
-			setNewEbook(result.data.ebook)
-		)
-	}, [convertedImgs, convertedImgs.length, cssRules, files2convert.length, updatedHTML])
+		uploadFiles<{filesUpdated?: boolean}>(ROUTES.uploadFiles, {}, files).then(async result => {
+			if (!result.data.filesUpdated) throw new Error('Ebook files not updated on server!')
 
-	// download new ebook
-	useEffect(() => {
-		if (!newEbook) return
+			const {data, errors} = await getFile(ROUTES.downloadEbook)
+			if (errors.length) throw new Error(errors[0])
 
-		const fileName =
-			oldEbook?.name.split('.').slice(0, -1).join('.') + `-v-accessible-kindle.epub`
+			const fileName =
+				oldEbook?.name.split('.').slice(0, -1).join('.') + `-v-accessible-kindle.epub`
 
-		downloadEbook(fileName, newEbook)
-	}, [newEbook, oldEbook?.name])
+			downloadEbook(fileName, await data!.blob())
+		})
+	}, [
+		convertedImgs,
+		convertedImgs.length,
+		cssRules,
+		files2convert.length,
+		oldEbook?.name,
+		updatedHTML,
+	])
 
 	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
 		setOldEbook((event.currentTarget.files ?? [undefined])[0])
