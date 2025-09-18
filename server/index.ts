@@ -14,6 +14,8 @@ dotenv.config()
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB (max epub file size)
 
+const EPUB_MIMETYPE = 'application/epub+zip'
+
 const EbookUploadSchema = z
 	.object({
 		fieldname: z.string(),
@@ -23,7 +25,7 @@ const EbookUploadSchema = z
 		size: z.number(),
 		buffer: z.instanceof(Buffer),
 	})
-	.refine(obj => ['application/epub+zip', 'application/octet-stream'].includes(obj.mimetype), {
+	.refine(obj => [EPUB_MIMETYPE, 'application/octet-stream'].includes(obj.mimetype), {
 		message: 'Invalid file type.',
 	})
 	.refine(obj => obj.size <= MAX_FILE_SIZE, {message: 'File size should not exceed 100MB'})
@@ -111,6 +113,19 @@ app.post(ROUTES.uploadFiles, upload.array('files'), async (req, res) => {
 	})
 
 	res.status(200).json({filesUpdated: true})
+})
+
+app.get(ROUTES.downloadEbook, async (_, res) => {
+	if (!state.zip) return res.status(404)
+
+	const downloadName = 'kindle-accessible.epub'
+	const buffer = state.zip.toBuffer()
+
+	res.set('Content-Type', EPUB_MIMETYPE)
+	res.set('Content-Disposition', `attachment; filename=${downloadName}`)
+	res.set('Content-Length', buffer.byteLength + '')
+
+	res.send(buffer)
 })
 
 /** @note Serves epub files directly from zip. */
