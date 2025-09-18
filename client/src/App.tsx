@@ -68,6 +68,7 @@ function App() {
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
+	const [updatedHTML, setUpdatedHTML] = useState<Record<IFileName, string>>({})
 
 	const atLeastOneQuery = !!text2convert.length
 	const replacementValidationErrors = text2convert.map(replacementText => {
@@ -216,10 +217,12 @@ function App() {
 						const fileName = files2convert[0].split('/').slice(-1)[0]
 						const baseSrc = fileName.split('.').slice(0, -1).join('.')
 
-						const {imgs} = await processPage(doc, baseSrc, text2convert)
+						const {html, imgs} = await processPage(doc, baseSrc, text2convert)
 
 						setConvertedImgs(convertedImgs.concat(imgs))
 						setFiles2convert(files2convert.slice(1))
+
+						if (html) setUpdatedHTML(Object.assign({}, updatedHTML, {[fileName]: html}))
 					}}
 					src={window.location.origin + '/' + files2convert[0]}
 					width="1000"
