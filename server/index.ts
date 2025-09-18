@@ -14,7 +14,7 @@ dotenv.config()
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB (max epub file size)
 
-const FileUploadSchema = z
+const EbookUploadSchema = z
 	.object({
 		fieldname: z.string(),
 		originalname: z.string(),
@@ -28,6 +28,18 @@ const FileUploadSchema = z
 	})
 	.refine(obj => obj.size <= MAX_FILE_SIZE, {message: 'File size should not exceed 100MB'})
 	.transform(obj => new File([obj.buffer as BlobPart], obj.originalname, {type: obj.mimetype}))
+
+const FilesUploadSchema = z
+	.object({
+		fieldname: z.string(),
+		originalname: z.string(),
+		encoding: z.string(),
+		mimetype: z.string(),
+		size: z.number(),
+		buffer: z.instanceof(Buffer),
+	})
+	.refine(obj => obj.size <= MAX_FILE_SIZE, {message: 'File size should not exceed 100MB'})
+// .transform(obj => new File([obj.buffer as BlobPart], obj.originalname, {type: obj.mimetype}))
 
 const app = express()
 const options = {
@@ -43,7 +55,7 @@ const upload = multer({storage: storage})
 const state: {zip?: AdmZip} = {}
 
 app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: Response) => {
-	const validationResult = FileUploadSchema.safeParse(req.file)
+	const validationResult = EbookUploadSchema.safeParse(req.file)
 
 	if (!validationResult.success)
 		return res.status(400).json({
@@ -66,6 +78,17 @@ app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: R
 		error: 'Did not find any text files.',
 		debug: {filePaths: state.zip.getEntries().map(entry => entry.entryName)},
 	})
+})
+
+app.post(ROUTES.uploadFiles, upload.array('files'), async (req, res) => {
+	const validationResult = z.array(FilesUploadSchema).safeParse(req.files)
+	if (!validationResult.success)
+		return res.status(400).json({
+			error: 'Invalid file(s) uploaded.',
+			details: validationResult.error.flatten().fieldErrors,
+		})
+
+	const files = validationResult.data
 })
 
 /** @note Serves epub files directly from zip. */

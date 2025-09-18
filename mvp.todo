@@ -33,7 +33,7 @@
 		[x] get page HTML
 	[x] send new images, pages, and CSS to the server
 [] server (bundle new epub)
-	[] accept incoming files
+	[x] accept incoming files
 	[] if no images or style folders exist, add them
 	[] add new CSS to new zip
 	[] add images to new zip
