@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {processPage} from './lib/process-page'
 import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
 
@@ -82,6 +82,25 @@ function App() {
 
 		return validationErrors
 	})
+
+	// upload files (when ready)
+	useEffect(() => {
+		// conversion in progress or the user has not clicked covert
+		if (files2convert.length || !convertedImgs.length) return
+
+		// concat files
+		const files: [IFileName, Blob][] = [
+			[`OEBPS/styles/accessible-kindle.css`, text2blob({css: cssRules})],
+			...Object.entries(updatedHTML).map(
+				([src, html]) => [`OEBPS/text/${src}`, text2blob({html})] as [IFileName, Blob]
+			),
+			...convertedImgs.map(imgData => [imgData.src, imgData.blob] as [IFileName, Blob]),
+		]
+
+		uploadFiles<{ebook?: File}>('api/upload-files', {}, files).then(result =>
+			setNewEbook(result.data.ebook)
+		)
+	}, [convertedImgs, convertedImgs.length, cssRules, files2convert.length, updatedHTML])
 
 	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
 		setOldEbook((event.currentTarget.files ?? [undefined])[0])
@@ -241,3 +260,8 @@ function App() {
 }
 
 export default App
+
+const text2blob = (object: Record<string, string>) => {
+	const [ext, content] = Object.entries(object)[0]
+	return new Blob([content], {type: `text/${ext}`})
+}

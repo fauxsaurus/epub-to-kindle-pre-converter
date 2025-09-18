@@ -18,7 +18,7 @@
 	[x] find all files in text/
 	[x] return list of files to client
 	[x] serve files directly from zip folder
-[] client (convert text to images)
+[x] client (convert text to images)
 	[x] load a file (WITH proper CSS to determine text styles)
 	[x] run from the server to prevent cross-origin issues preventing <iframe> examination
 	[x] load each file
@@ -31,8 +31,9 @@
 		[x] remove source text
 		[x] add new CSS to the page
 		[x] get page HTML
-	[] send new images, pages, and CSS to the server
+	[x] send new images, pages, and CSS to the server
 [] server (bundle new epub)
+	[] accept incoming files
 	[] if no images or style folders exist, add them
 	[] only add a new css file and link to it in every xhtml document to ensure the rules are applied [] everywhere where a query is matched--ignore files where the contents remain unchanged)
 	[] add these files to a new zip
@@ -44,8 +45,10 @@
 	[] download name = file.name-pre-converted-accessible-kindle.epub
 [] cleanup
 	[] revoke preview urls when clearing them
+	[] share api/upload-files between client/server
 [] UX
 	[] Allow users to specify the output image resolution
+	[] make the CSS styles path configurable
 	[] ensure that no styling contaminates the generated SVGs
 	[] Line wrap long text
 	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
