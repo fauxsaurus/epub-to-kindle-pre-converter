@@ -62,10 +62,21 @@ const uploadFiles = async <T,>(
 		})
 }
 
+const downloadEbook = (download: IFileName, blob: Blob) => {
+	const href = URL.createObjectURL(blob)
+	const link = Object.assign(document.createElement('a'), {download, hidden: true, href})
+
+	document.body.appendChild(link).click()
+
+	setTimeout(() => (URL.revokeObjectURL(href), document.body.removeChild(link)), 0)
+}
+
 function App() {
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
+	const [newEbook, setNewEbook] = useState<Blob | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
+
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
 	const [updatedHTML, setUpdatedHTML] = useState<Record<IFileName, string>>({})
@@ -101,6 +112,16 @@ function App() {
 			setNewEbook(result.data.ebook)
 		)
 	}, [convertedImgs, convertedImgs.length, cssRules, files2convert.length, updatedHTML])
+
+	// download new ebook
+	useEffect(() => {
+		if (!newEbook) return
+
+		const fileName =
+			oldEbook?.name.split('.').slice(0, -1).join('.') + `-v-accessible-kindle.epub`
+
+		downloadEbook(fileName, newEbook)
+	}, [newEbook, oldEbook?.name])
 
 	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
 		setOldEbook((event.currentTarget.files ?? [undefined])[0])
