@@ -40,7 +40,7 @@ const TMP_CSS_RULES: IReplacementText[] = [
 ]
 
 function App() {
-	const [file, setFile] = useState<File | undefined>(undefined)
+	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
 	const [cssRules, setCssRules] = useState<ICssRules>(DEFAULT_CSS_RULES)
 	const [files2convert, setFiles2convert] = useState<string[]>([])
@@ -60,12 +60,12 @@ function App() {
 	})
 
 	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
-		setFile((event.currentTarget.files ?? [undefined])[0])
+		setOldEbook((event.currentTarget.files ?? [undefined])[0])
 
 	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 
-		if (!file) return // @todo add error, but this shouldn't happen due to disabled.
+		if (!oldEbook) return // @todo add error, but this shouldn't happen due to disabled.
 
 		const formData = new FormData()
 
@@ -84,7 +84,7 @@ function App() {
 
 	return (
 		<form onSubmit={event => onSubmit(event)}>
-			{!file && (
+			{!oldEbook && (
 				<ul data-validation="error">
 					<li>Need a valid epub.</li>
 				</ul>
@@ -182,7 +182,9 @@ function App() {
 			></textarea>
 
 			<button
-				disabled={!file || !atLeastOneQuery || !!replacementValidationErrors.flat().length}
+				disabled={
+					!oldEbook || !atLeastOneQuery || !!replacementValidationErrors.flat().length
+				}
 				type="submit"
 			>
 				Convert
