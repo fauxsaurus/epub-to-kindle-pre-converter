@@ -8,6 +8,8 @@ import multer from 'multer'
 import path from 'path'
 import {z} from 'zod'
 
+import {ROUTES} from '../shared/routes.ts'
+
 dotenv.config()
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB (max epub file size)
@@ -40,7 +42,7 @@ const upload = multer({storage: storage})
 
 const state: {zip?: AdmZip} = {}
 
-app.post('/api/upload-ebook', upload.single('files'), async (req: Request, res: Response) => {
+app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: Response) => {
 	const validationResult = FileUploadSchema.safeParse(req.file)
 
 	if (!validationResult.success)

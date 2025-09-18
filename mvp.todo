@@ -35,8 +35,9 @@
 [] server (bundle new epub)
 	[] accept incoming files
 	[] if no images or style folders exist, add them
-	[] only add a new css file and link to it in every xhtml document to ensure the rules are applied [] everywhere where a query is matched--ignore files where the contents remain unchanged)
-	[] add these files to a new zip
+	[] add new CSS to new zip
+	[] add images to new zip
+	[] add new HTML to new zip
 	[] export the epub
 	[] validate the epub (should this have been done at the beginning of upload process)
 	[] send a download link to the client
@@ -45,7 +46,7 @@
 	[] download name = file.name-pre-converted-accessible-kindle.epub
 [] cleanup
 	[] revoke preview urls when clearing them
-	[] share api/upload-files between client/server
+	[x] share api/upload-files between client/server
 [] UX
 	[] Allow users to specify the output image resolution
 	[] make the CSS styles path configurable

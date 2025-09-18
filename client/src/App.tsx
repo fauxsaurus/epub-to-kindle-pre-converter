@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react'
+import {ROUTES} from '../../shared/routes'
 import {processPage} from './lib/process-page'
 import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
 
@@ -50,7 +51,7 @@ const uploadFiles = async <T,>(
 
 	files.forEach(([name, blob]) => body.append('files', blob, name))
 
-	return fetch(`${window.location.origin}/${path}`, {method: 'POST', body})
+	return fetch(window.location.origin + path, {method: 'POST', body})
 		.then(async response => {
 			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
@@ -108,7 +109,7 @@ function App() {
 			...convertedImgs.map(imgData => [imgData.src, imgData.blob] as [IFileName, Blob]),
 		]
 
-		uploadFiles<{ebook?: File}>('api/upload-files', {}, files).then(result =>
+		uploadFiles<{ebook?: File}>(ROUTES.uploadFiles, {}, files).then(result =>
 			setNewEbook(result.data.ebook)
 		)
 	}, [convertedImgs, convertedImgs.length, cssRules, files2convert.length, updatedHTML])
@@ -132,7 +133,7 @@ function App() {
 		if (!oldEbook) return // @todo add error, but this shouldn't happen due to disabled.
 
 		setFiles2convert(
-			(await uploadFiles('api/upload-ebook', {files: []}, [[oldEbook.name, oldEbook]])).data
+			(await uploadFiles(ROUTES.uploadEbook, {files: []}, [[oldEbook.name, oldEbook]])).data
 				.files
 		)
 	}
