@@ -50,7 +50,7 @@ export const processPage = async (
 	if (errors.length) throw new Error(errors[0])
 
 	const doctype = (await oldHtml!.text()).split(/<(html|head)/)[0]
-	const html = doctype + doc.querySelector('html')!.outerHTML
+	const html = doctype + doc.querySelector('html')!.outerHTML.replace(/><\/img>/g, ' />')
 
 	return {html, imgs}
 }
