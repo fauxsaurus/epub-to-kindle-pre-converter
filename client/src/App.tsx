@@ -15,10 +15,12 @@ const validateCssQuery = (query: ICssQuery) => {
 }
 
 const DEFAULT_CSS_RULES = `/** @note Full-width image with one line above and below. */
-.kindle-accessible-image {	
+.kindle-accessible-image {
 	margin: 0 auto;
 	width: 100%;
-}`
+}
+`
+
 const TMP_CSS_RULES: IReplacementText[] = [
 	{
 		altText: '.braille+.screen-reader-only',
