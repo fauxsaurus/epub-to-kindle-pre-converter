@@ -1,4 +1,5 @@
 import {el2imgBlob} from './el2img-blob'
+import {getFile} from './request'
 import type {IReplacementText} from './types'
 
 export const processPage = async (
@@ -42,15 +43,11 @@ export const processPage = async (
 	// get new HTML
 	doc.head.innerHTML += `<link href="../kindle-accessible/style.css" rel="stylesheet" type="text/css"/>`
 
-	const html = await fetch(doc.location.href, {method: 'GET'})
-		.then(async response => {
-			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+	const {data: oldHtml, errors} = await getFile(doc.location.href)
+	if (errors.length) throw new Error(errors[0])
 
-			const doctype = (await response.text()).split(/<(html|head)/)[0]
-
-			return doctype + doc.querySelector('html')!.outerHTML
-		})
-		.catch(console.error)
+	const doctype = (await oldHtml!.text()).split(/<(html|head)/)[0]
+	const html = doctype + doc.querySelector('html')!.outerHTML
 
 	return {html, imgs}
 }

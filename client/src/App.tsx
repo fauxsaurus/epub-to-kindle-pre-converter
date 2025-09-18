@@ -1,9 +1,8 @@
 import {useEffect, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
 import {processPage} from './lib/process-page'
-import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
-
-type IFileName = string
+import {uploadFiles} from './lib/request'
+import type {IConvertedImg, ICssQuery, ICssRules, IFileName, IReplacementText} from './lib/types'
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
 
@@ -42,30 +41,6 @@ const TMP_CSS_RULES: IReplacementText[] = [
 	},
 ]
 
-const uploadFiles = async <T,>(
-	path: string,
-	fallback: T,
-	files: [IFileName, Blob | File][]
-): Promise<{data: T; errors: string[]}> => {
-	const body = new FormData()
-
-	files.forEach(([name, blob]) => body.append('files', blob, name))
-
-	return fetch(window.location.origin + path, {method: 'POST', body})
-		.then(async response => {
-			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-
-			return {data: (await response.json()) ?? fallback, errors: []}
-		})
-		.catch(error => {
-			console.error(error)
-			return {data: fallback, errors: [error.toString()]}
-		})
-}
-
-const downloadEbook = (download: IFileName, blob: Blob) => {
-	const href = URL.createObjectURL(blob)
-	const link = Object.assign(document.createElement('a'), {download, hidden: true, href})
 
 	document.body.appendChild(link).click()
 
