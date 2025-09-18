@@ -102,9 +102,10 @@ function App() {
 
 		// concat files
 		const files: [IFileName, Blob][] = [
-			[`OEBPS/styles/accessible-kindle.css`, text2blob({css: cssRules})],
+			/** @note this name cannot be in the epub already (in order to prevent overwriting existing files) */
+			['kindle-accessible-img-styles.css', text2blob({css: cssRules})],
 			...Object.entries(updatedHTML).map(
-				([src, html]) => [`OEBPS/text/${src}`, text2blob({html})] as [IFileName, Blob]
+				([src, html]) => [src, text2blob({html})] as [IFileName, Blob]
 			),
 			...convertedImgs.map(imgData => [imgData.src, imgData.blob] as [IFileName, Blob]),
 		]

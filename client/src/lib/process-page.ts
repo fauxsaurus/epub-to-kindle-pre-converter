@@ -27,7 +27,7 @@ export const processPage = async (
 			const altText = getAltText(altTextEl ?? imgText)
 			const blob = await el2imgBlob(imgText)
 			const previewUrl = URL.createObjectURL(blob)
-			const src = `../images/img-${pageName}-${i + 1}.jpg`
+			const src = `../kindle-accessible/img-${pageName}-${i + 1}.jpg`
 
 			const alt = altText
 
@@ -40,7 +40,7 @@ export const processPage = async (
 	)
 
 	// get new HTML
-	doc.head.innerHTML += `<link href="../styles/accessible-kindle.css" rel="stylesheet" type="text/css"/>`
+	doc.head.innerHTML += `<link href="../kindle-accessible/style.css" rel="stylesheet" type="text/css"/>`
 
 	const html = await fetch(doc.location.href, {method: 'GET'})
 		.then(async response => {
