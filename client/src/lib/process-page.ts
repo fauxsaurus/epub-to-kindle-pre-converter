@@ -1,14 +1,6 @@
 import {el2imgBlob} from './el2img-blob'
 import type {IReplacementText} from './types'
 
-const MAP = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}
-
-type IEntity = keyof typeof MAP
-
-/** @note strips HTML and escapes for HTML attributes */
-const getAltText = (el: Element) =>
-	el.innerHTML.replace(/<\w[^>]+>/g, '').replace(/[&<>"']/g, match => MAP[match as IEntity])
-
 export const processPage = async (
 	doc: Document,
 	pageName: string,
@@ -62,3 +54,11 @@ export const processPage = async (
 
 	return {html, imgs}
 }
+
+const MAP = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}
+
+type IEntity = keyof typeof MAP
+
+/** @note strips HTML and escapes for HTML attributes */
+const getAltText = (el: Element) =>
+	el.innerHTML.replace(/<\w[^>]+>/g, '').replace(/[&<>"']/g, match => MAP[match as IEntity])

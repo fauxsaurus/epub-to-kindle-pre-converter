@@ -1,22 +1,3 @@
-const MARGINS = 'top,bottom,left,right'.split(',').map(side => 'margin-' + side)
-
-/** @returns an element's [width, height] plus their margins. */
-const el2dimensions = (el: Element, styleMap = el.computedStyleMap()) => {
-	const {height: h, width: w} = el.getBoundingClientRect()
-	const [t, b, l, r] = MARGINS.map(prop =>
-		parseInt(styleMap.get(prop)!.toString()!.match(/^\d+/)?.[0] ?? '0')
-	)
-	return [~~w + l + r, ~~h + b + t]
-}
-const loadImg = async (src: string, img = new Image()) =>
-	new Promise<HTMLImageElement>((resolve, reject) =>
-		Object.assign(img, {
-			onerror: () => reject(new Error(`Failed to load image from ${src}`)),
-			onload: () => resolve(img),
-			src,
-		})
-	)
-
 /** @note `computedStyleMap()` is only available in Chromium-based browsers. */
 export const el2imgBlob = async (el: Element) => {
 	// setup vector (svg)
@@ -45,3 +26,22 @@ export const el2imgBlob = async (el: Element) => {
 
 	return canvas.convertToBlob({type: 'image/jpeg', quality: 0.7})
 }
+
+const MARGINS = 'top,bottom,left,right'.split(',').map(side => 'margin-' + side)
+
+/** @returns an element's [width, height] plus their margins. */
+const el2dimensions = (el: Element, styleMap = el.computedStyleMap()) => {
+	const {height: h, width: w} = el.getBoundingClientRect()
+	const [t, b, l, r] = MARGINS.map(prop =>
+		parseInt(styleMap.get(prop)!.toString()!.match(/^\d+/)?.[0] ?? '0')
+	)
+	return [~~w + l + r, ~~h + b + t]
+}
+const loadImg = async (src: string, img = new Image()) =>
+	new Promise<HTMLImageElement>((resolve, reject) =>
+		Object.assign(img, {
+			onerror: () => reject(new Error(`Failed to load image from ${src}`)),
+			onload: () => resolve(img),
+			src,
+		})
+	)
