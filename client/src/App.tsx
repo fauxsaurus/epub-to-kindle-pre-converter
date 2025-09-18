@@ -199,12 +199,8 @@ function App() {
 
 						if (!doc) return console.log('no doc...')
 
-						const baseSrc = files2convert[0]
-							.split('/')
-							.slice(-1)[0]
-							.split('.')
-							.slice(0, -1)
-							.join('.')
+						const fileName = files2convert[0].split('/').slice(-1)[0]
+						const baseSrc = fileName.split('.').slice(0, -1).join('.')
 
 						const {imgs} = await processPage(doc, baseSrc, text2convert)
 
