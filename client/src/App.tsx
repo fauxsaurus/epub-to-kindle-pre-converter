@@ -2,6 +2,8 @@ import {useState} from 'react'
 import {processPage} from './lib/process-page'
 import type {IConvertedImg, ICssQuery, ICssRules, IReplacementText} from './lib/types'
 
+type IFileName = string
+
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
 
 const validateCssQuery = (query: ICssQuery) => {
@@ -39,6 +41,27 @@ const TMP_CSS_RULES: IReplacementText[] = [
 	},
 ]
 
+const uploadFiles = async <T,>(
+	path: string,
+	fallback: T,
+	files: [IFileName, Blob | File][]
+): Promise<{data: T; errors: string[]}> => {
+	const body = new FormData()
+
+	files.forEach(([name, blob]) => body.append('files', blob, name))
+
+	return fetch(`${window.location.origin}/${path}`, {method: 'POST', body})
+		.then(async response => {
+			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+			return {data: (await response.json()) ?? fallback, errors: []}
+		})
+		.catch(error => {
+			console.error(error)
+			return {data: fallback, errors: [error.toString()]}
+		})
+}
+
 function App() {
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
 	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
@@ -67,19 +90,10 @@ function App() {
 
 		if (!oldEbook) return // @todo add error, but this shouldn't happen due to disabled.
 
-		const formData = new FormData()
-
-		formData.append('file', file, file.name)
-
-		const url = `${window.location.origin}/api/upload-ebook`
-
-		await fetch(url, {method: 'POST', body: formData})
-			.then(async response => {
-				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-
-				setFiles2convert((await response.json()).files ?? [])
-			})
-			.catch(console.error)
+		setFiles2convert(
+			(await uploadFiles('api/upload-ebook', {files: []}, [[oldEbook.name, oldEbook]])).data
+				.files
+		)
 	}
 
 	return (

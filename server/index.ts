@@ -40,7 +40,7 @@ const upload = multer({storage: storage})
 
 const state: {zip?: AdmZip} = {}
 
-app.post('/api/upload-ebook', upload.single('file'), async (req: Request, res: Response) => {
+app.post('/api/upload-ebook', upload.single('files'), async (req: Request, res: Response) => {
 	const validationResult = FileUploadSchema.safeParse(req.file)
 
 	if (!validationResult.success)
