@@ -2,7 +2,9 @@
 
 This program generates an `epub` which replaces text that is indecipherable to screen readers (e.g., Braille and Ancient Norse Runes) with images that have alt text (by parsing potential screen-reader-only text).
 
-Additionally, it can be used to convert unsupported characters sets (i.e., Chinese, Japanese, Korean[^1], etc.) into images that can be displayed on Kindles.
+Additionally, it can be used to convert unsupported characters sets (i.e., Chinese, Japanese, Korean[^1], etc.) into images that can be displayed on Kindles. Example:
+
+![Side-by-side screenshot of Korean characters not displaying in KDP's Kindle Previewer (thereby interfering with the formatting) and an image-based approach where they do.](./doc/img/side-by-side-unsupported-characters.png)
 
 ## Why does this exist?
 
