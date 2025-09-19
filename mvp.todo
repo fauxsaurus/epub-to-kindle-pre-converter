@@ -49,9 +49,12 @@
 	[] improve error handling on all HTTP requests
 	[x] share api/upload-files between client/server
 [] UX
+	[] improve it (by updating the UI)
+	[] Ensure that the new UI is accessible (as that's the point of this _entire_ exercise)!
 	[x] Allow users to specify custom pre CSS (to get a larger text size on the images)
 	[] Allow users to specify the output image resolution
 	[] make the CSS styles path configurable
 	[] ensure that no styling contaminates the generated SVGs
 	[x] Line wrap long text
 	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
+	[] consider either dropping unnecessary HTTPS support for a zero config setup _OR_ better yet, default to HTTP with a warning if those files aren't found.
