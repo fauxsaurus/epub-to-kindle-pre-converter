@@ -1,8 +1,10 @@
-# ePub to Kindle "Pre-Converter"
+# ePub to azw/kfx "Pre-Converter"
 
 This program generates an `epub` which replaces text that is indecipherable to screen readers (e.g., Braille and Ancient Norse Runes) with images that have alt text (by parsing potential screen-reader-only text).
 
-Additionally, it can be used to convert unsupported characters sets (i.e., Chinese, Japanese, Korean[^1], etc.) into images that can be displayed on Kindles.
+Additionally, it can be used to convert unsupported characters sets (i.e., Chinese, Japanese, Korean[^1], etc.) into images that can be displayed on Kindles. Example:
+
+![Side-by-side screenshot of Korean characters not displaying in KDP's Kindle Previewer (thereby interfering with the formatting) and an image-based approach where they do.](./doc/img/side-by-side-unsupported-characters.png)
 
 ## Why does this exist?
 
@@ -42,7 +44,7 @@ By providing CSS queries of what text to replace (e.g., `.runes`) and what alt t
 
 Sadly, at the time of writing, despite 100M+ downloads on [Android](https://play.google.com/store/apps/details?id=com.amazon.kindle) (and who knows how many on iOS), neither app supports reading alt text aloud[^4]. Hence, this program will only help those reading on official Kindle devices until Amazon brings that feature to the rest of their platforms (at which point files generated via this tool will be "future-proofed").
 
-If you eagerly await that day and would like to see this program sunsetted for being unnecessary, leave a thumbs up or a comment over on [this issue]() (and remember, despite any frustrations that you may have, please be civil).
+If you eagerly await that day and would like to see this program sunsetted for being unnecessary, leave a thumbs up or a comment over on [this issue](https://github.com/fauxsaurus/epub-to-awz-kfx-pre-converter/issues/2) (and remember, despite any frustrations that you may have, please be civil).
 
 ## Config
 
