@@ -1,0 +1,60 @@
+[x] client (UI Prototype)
+	[x] + file button
+	[x] check that a file is in state
+	[x] +CSS rules UI
+	[x] validate the CSS rules
+	[x] ensure that at least *one* replacement rule is set (otherwise the process is pointless)
+	[x] send data to the server
+	[x] +custom CSS
+	[x] disable submit button if there are validation errors
+	[x] upload file to server
+		[x] +HTTPS
+		[x] +.env file
+[x] sever (initial API)
+	[x] +HTTPS
+	[x] CORS
+	[x] validate formData upload
+	[x] open zip file
+	[x] find all files in text/
+	[x] return list of files to client
+	[x] serve files directly from zip folder
+[x] client (convert text to images)
+	[x] load a file (WITH proper CSS to determine text styles)
+	[x] run from the server to prevent cross-origin issues preventing <iframe> examination
+	[x] load each file
+	[x] successfully query the iframe
+	[x] draw all found text to images
+	[x] list generated images in below in an output section (under the file name in which they appear),
+	[x] replace the markup
+		[x] remove alt text markup (if it exists)
+		[x] append image markup after source text (url format: images/file-img-#.ext)
+		[x] remove source text
+		[x] add new CSS to the page
+		[x] get page HTML
+	[x] send new images, pages, and CSS to the server
+[x] server (bundle new epub)
+	[x] accept incoming files
+	[x] update HTML files
+	[x] add new CSS to new zip
+	[x] add images to new zip
+	[x] client: download the file
+	[x] send the epub
+	[x] verify that the contents truly changed
+	[] validate the epub (should this have been done at the beginning of upload process)
+[x] client (download new epub)
+	[x] initiate an auto download (might not be able to do that without the click... not a problem with `.click()`)
+	[x] download name = file.name-pre-converted-accessible-kindle.epub
+[] cleanup
+	[] revoke preview urls when clearing them
+	[] improve error handling on all HTTP requests
+	[x] share api/upload-files between client/server
+[] UX
+	[] improve it (by updating the UI)
+	[] Ensure that the new UI is accessible (as that's the point of this _entire_ exercise)!
+	[x] Allow users to specify custom pre CSS (to get a larger text size on the images)
+	[] Allow users to specify the output image resolution
+	[] make the CSS styles path configurable
+	[] ensure that no styling contaminates the generated SVGs
+	[x] Line wrap long text
+	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
+	[] consider either dropping unnecessary HTTPS support for a zero config setup _OR_ better yet, default to HTTP with a warning if those files aren't found.
