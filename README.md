@@ -1,4 +1,4 @@
-# ePub to Kindle "Pre-Converter"
+# ePub to azw/kfx "Pre-Converter"
 
 This program generates an `epub` which replaces text that is indecipherable to screen readers (e.g., Braille and Ancient Norse Runes) with images that have alt text (by parsing potential screen-reader-only text).
 
