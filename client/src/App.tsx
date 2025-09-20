@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
 import {CONFIG_IMG_TEMPLATE, DEFAULT_CONFIG, validateConfig} from './lib/config'
 import {type IConfig, type ICssQuery, type ICssRules} from './lib/config'
@@ -24,6 +24,7 @@ function App() {
 	const [config, setConfig] = useState<IConfig>(DEFAULT_CONFIG)
 
 	const [dragging, setDragging] = useState(false)
+	const convertRef = useRef<HTMLButtonElement>(null)
 
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
 
@@ -88,9 +89,6 @@ function App() {
 		updatedHTML,
 	])
 
-	const addFile = (event: React.ChangeEvent<HTMLInputElement>) =>
-		setOldEbook((event.currentTarget.files ?? [undefined])[0])
-
 	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 
@@ -103,8 +101,8 @@ function App() {
 		setFiles2convert(res.data.files)
 	}
 
-	const setFiles = (files: File[]) =>
-		files.forEach(async file => {
+	const setFiles = async (files: File[]) => {
+		const promises = files.map(async file => {
 			if (file.type === 'application/epub+zip') return setOldEbook(file)
 			if (file.type !== 'application/json') return
 
@@ -125,19 +123,16 @@ function App() {
 			setConfig(data)
 		})
 
+		await Promise.all(promises)
+
+		convertRef?.current?.focus()
+	}
+
 	return (
 		<form
 			{...getDragAndDropProps({dragging, setDragging, setFiles})}
 			onSubmit={event => onSubmit(event)}
 		>
-			{!oldEbook && (
-				<ul data-validation="error">
-					<li>Need a valid epub.</li>
-				</ul>
-			)}
-			<label>
-				Epub: <input accept=".epub" name="file" onChange={addFile} type="file" />
-			</label>
 			<div>
 				Note: If an Alt Text field is left blank, the textual contents from the first query
 				will serve as an image's alt text (useful for allowing character sets that Kindle's
@@ -234,11 +229,30 @@ function App() {
 				onChange={event => setPostCSS(event.currentTarget.value)}
 				value={config.css.post}
 			></textarea>
-
+			{!oldEbook && (
+				<ul data-validation="error">
+					<li>Need a valid epub.</li>
+				</ul>
+			)}
+			<label>
+				Epub/Config:{' '}
+				<input
+					accept=".epub, application/epub+zip, .json, application/json"
+					autoFocus
+					multiple
+					name="file"
+					onChange={event => setFiles(Array.from(event.currentTarget?.files || []))}
+					type="file"
+				/>
+			</label>
 			<button
 				disabled={
-					!oldEbook || !atLeastOneQuery || !!replacementValidationErrors.flat().length
+					!oldEbook ||
+					!atLeastOneQuery ||
+					!!replacementValidationErrors.flat().length ||
+					!!files2convert.length
 				}
+				ref={convertRef}
 				type="submit"
 			>
 				Convert
