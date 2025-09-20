@@ -17,8 +17,12 @@ export type IConfig = {
 		/** @note Specifies what HTML elements to convert images. */
 		content: ICssQuery
 	}[]
-	/** A number for use in a switch statement to gracefully handle/update old config schemas. */
-	version: number
+	meta: {
+		/** A sentence explaining what program this file is for. */
+		info: string
+		/** A number for use in a switch statement to gracefully handle/update old config schemas. */
+		version: number
+	}
 }
 
 const DEFAULT_PRE_CSS_RULES = `/** @note adjusts text *before* conversion for better image optimization */
@@ -34,6 +38,8 @@ const DEFAULT_POST_CSS_RULES = `/** @note Full-width image with one line above a
 	width: 100%;
 }
 `
+
+const info = `For use with https://github.com/fauxsaurus/epub-to-awz-kfx-pre-converter.`
 
 export const DEFAULT_CONFIG: IConfig = {
 	css: {
@@ -57,7 +63,7 @@ export const DEFAULT_CONFIG: IConfig = {
 			content: '[lang="ko"]',
 		},
 	],
-	version: 1,
+	meta: {info, version: 1},
 }
 
 export const CONFIG_IMG_TEMPLATE: IConfig['img'][number] = {
