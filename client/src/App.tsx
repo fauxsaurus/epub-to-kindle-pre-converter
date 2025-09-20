@@ -98,7 +98,7 @@ function App() {
 		const res = await uploadFiles(ROUTES.uploadEbook, fallback, [[oldEbook.name, oldEbook]])
 
 		setAssetDir(res.data.assetDir)
-		setFiles2convert(res.data.files)
+		setFiles2convert(res.data.files.sort())
 	}
 
 	const setFiles = async (files: File[]) => {
@@ -295,18 +295,33 @@ function App() {
 					width="1000"
 				></iframe>
 			)}
-			{convertedImgs.map(imgData => (
-				<img
-					alt={imgData.altText}
-					key={imgData.previewUrl}
-					src={imgData.previewUrl}
-					title={imgData.altText}
-				/>
-			))}
+			{convertedImgs.map((imgData, i, allImgData) => {
+				const oldPageName = i ? imgSrc2pageName(allImgData[i - 1].src) : ''
+				const newPageName = imgSrc2pageName(imgData.src)
+				const showPageNameLabel = oldPageName !== newPageName
+
+				return (
+					<>
+						{showPageNameLabel ? <div>{newPageName}</div> : null}
+						<img
+							alt={imgData.altText}
+							key={imgData.previewUrl}
+							src={imgData.previewUrl}
+							title={imgData.altText}
+						/>
+					</>
+				)
+			})}
 		</form>
 	)
 }
 
 export default App
+
+/** @note  `...img-pageName-1.jpg` => `pageName` */
+const imgSrc2pageName = (src: string) => {
+	const fileName = src.split('/').slice(-1)[0]
+	return fileName.split('-').slice(1, -1).join('-')
+}
 
 const text2blob = (content: string, mimeType: string) => new Blob([content], {type: mimeType})
