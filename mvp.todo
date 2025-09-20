@@ -61,11 +61,12 @@
 		[x] autofill json config support
 			[x] validate config file
 		[x] auto focus the file input on load
-	[] images
-		[] give an option to clear images (and revoke the blob URLs when doing so)
-		[] Add labels derived from a change in file paths (constantly checking for a difference in the chapter name in the url) between images to show what chapter are in order by extracting the chapter name from the file.
-		[] read the TOC or index thing to determine the order for the server to send chapter files in
+	[x] images
+		[x] give an option to clear images (and revoke the blob URLs when doing so)
+		[x] Add labels derived from a change in file paths (constantly checking for a difference in the chapter name in the url) between images to show what chapter are in order by extracting the chapter name from the file.
+		[x] alphabetized image file conversion order (80:20, not parsing potentially non-existent file)
 	[] improve UI
+		[] +reset button
 		[] Show encountered errors for all HTTP requests in the UI!
 		[] cleanup the internals
 		[] prettify the externals

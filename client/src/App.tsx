@@ -128,6 +128,11 @@ function App() {
 		convertRef?.current?.focus()
 	}
 
+	const clearPreviewImages = () => {
+		convertedImgs.forEach(imgData => URL.revokeObjectURL(imgData.previewUrl))
+		setConvertedImgs([])
+	}
+
 	return (
 		<form
 			{...getDragAndDropProps({dragging, setDragging, setFiles})}
@@ -266,6 +271,14 @@ function App() {
 				}}
 			>
 				Download Config
+			</button>
+			<button
+				disabled={!convertedImgs.length || !!files2convert.length}
+				onClick={() => {
+					clearPreviewImages()
+				}}
+			>
+				Clear Images
 			</button>
 			<output>{files2convert.join(', ')}</output>
 			{!!files2convert.length && (
