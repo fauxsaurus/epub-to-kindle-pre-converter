@@ -1,14 +1,12 @@
-export type ICssClass = string
-export type ICssQuery = string
-export type ICssRules = string
+import type {IHtmlClass} from './config'
+
 export type IFileName = string
 export type IUrl = string
 
-export type IReplacementText = {altText: ICssQuery | ''; className: ICssClass; imageText: ICssQuery}
 export type IConvertedImg = {
 	altText: string
 	blob: Blob
-	className: ICssClass
+	className: IHtmlClass
 	src: IUrl
 	previewUrl: IUrl
 }

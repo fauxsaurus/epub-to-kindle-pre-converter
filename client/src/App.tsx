@@ -1,10 +1,10 @@
 import {useEffect, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
+import {CONFIG_IMG_TEMPLATE, DEFAULT_CONFIG} from './lib/config'
+import {type IConfig, type ICssQuery, type ICssRules} from './lib/config'
 import {processPage} from './lib/process-page'
 import {getFile, uploadFiles} from './lib/request'
-import type {IConvertedImg, ICssQuery, ICssRules, IFileName, IReplacementText} from './lib/types'
-
-const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
+import type {IConvertedImg, IFileName} from './lib/types'
 import {download} from './lib/download'
 
 const validateCssQuery = (query: ICssQuery) => {
@@ -17,57 +17,30 @@ const validateCssQuery = (query: ICssQuery) => {
 	}
 }
 
-const DEFAULT_PRE_CSS_RULES = `/** @note adjusts text *before* conversion for better image optimization */
-.braille,.runes,[lang="ko"] {
-	margin: 1rem auto;
-	font-size: 1.75rem;
-	text-align: center;
-}
-`
-
-const DEFAULT_POST_CSS_RULES = `/** @note Full-width image with one line above and below. */
-.kindle-accessible-image {
-	margin: 0 auto;
-	width: 100%;
-}
-`
-
-const TMP_CSS_RULES: IReplacementText[] = [
-	{
-		altText: '.braille+.screen-reader-only',
-		className: 'kindle-accessible-image',
-		imageText: '.braille',
-	},
-	{
-		altText: '.runes+.screen-reader-only',
-		className: 'kindle-accessible-image',
-		imageText: '.runes',
-	},
-	{
-		altText: '',
-		className: 'kindle-accessible-image',
-		imageText: '[lang="ko"]',
-	},
-]
-
 function App() {
+	const [config, setConfig] = useState<IConfig>(DEFAULT_CONFIG)
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
-	const [text2convert, setText2convert] = useState<IReplacementText[]>(TMP_CSS_RULES)
-	const [preCSS, setPreCSS] = useState<ICssRules>(DEFAULT_PRE_CSS_RULES)
-	const [postCSS, setPostCSS] = useState<ICssRules>(DEFAULT_POST_CSS_RULES)
+
+	const setPreCSS = (pre: ICssRules) =>
+		setConfig(Object.assign({}, config, {css: {pre, post: config.css.post}}))
+
+	const setPostCSS = (post: ICssRules) =>
+		setConfig(Object.assign({}, config, {css: {pre: config.css.pre, post}}))
+
+	const setText2convert = (img: IConfig['img']) => setConfig(Object.assign({}, config, {img}))
 
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
 	const [updatedHTML, setUpdatedHTML] = useState<Record<IFileName, string>>({})
 
-	const atLeastOneQuery = !!text2convert.length
-	const replacementValidationErrors = text2convert.map(replacementText => {
+	const atLeastOneQuery = !!config.img.length
+	const replacementValidationErrors = config.img.map(replacementText => {
 		const validationErrors = []
 
-		if (!replacementText.imageText || !validateCssQuery(replacementText.imageText))
+		if (!replacementText.content || !validateCssQuery(replacementText.content))
 			validationErrors.push('Need a valid CSS query for Image Text.')
 
-		if (replacementText.altText && !validateCssQuery(replacementText.altText))
+		if (replacementText.alt && !validateCssQuery(replacementText.alt))
 			validationErrors.push('Invalid Alt Text CSS Query.')
 
 		return validationErrors
@@ -81,7 +54,7 @@ function App() {
 		// concat files
 		const files: [IFileName, Blob][] = [
 			/** @note this name cannot be in the epub already (in order to prevent overwriting existing files) */
-			['kindle-accessible-img-styles.css', text2blob({css: postCSS})],
+			['kindle-accessible-img-styles.css', text2blob({css: config.css.post})],
 			...Object.entries(updatedHTML).map(
 				([src, html]) => [src, text2blob({html})] as [IFileName, Blob]
 			),
@@ -102,7 +75,7 @@ function App() {
 	}, [
 		convertedImgs,
 		convertedImgs.length,
-		postCSS,
+		config.css.post,
 		files2convert.length,
 		oldEbook?.name,
 		updatedHTML,
@@ -142,29 +115,28 @@ function App() {
 				<li>Need at least one Image Text CSS Query.</li>
 			</ul>
 
-			{text2convert.concat([REPLACEMENT_TEXT_TEMPLATE]).map((replacementText, i) => {
-				const updateReplacementText = (replacementText: IReplacementText) => {
-					if (replacementText.altText || replacementText.imageText)
+			{config.img.concat([CONFIG_IMG_TEMPLATE]).map((replacementText, i) => {
+				const updateReplacementText = (replacementText: IConfig['img'][number]) => {
+					if (replacementText.alt || replacementText.content)
 						return setText2convert(
-							Object.assign(text2convert.slice(), {[i]: replacementText})
+							Object.assign(config.img.slice(), {[i]: replacementText})
 						)
 
 					// remove array item
-					const newArray = text2convert.slice()
+					const newArray = config.img.slice()
 
 					newArray.splice(i, 1)
 
 					setText2convert(newArray)
 				}
 
-				const setAltText = (altText: string) =>
-					updateReplacementText({...replacementText, altText})
+				const setAlt = (alt: string) => updateReplacementText({...replacementText, alt})
 
-				const setClassName = (className: string) =>
-					updateReplacementText({...replacementText, className})
+				const setClass = (className: string) =>
+					updateReplacementText({...replacementText, class: className})
 
-				const setImageText = (imageText: string) =>
-					updateReplacementText({...replacementText, imageText})
+				const setContent = (content: string) =>
+					updateReplacementText({...replacementText, content})
 
 				return (
 					<fieldset key={i}>
@@ -181,19 +153,19 @@ function App() {
 							Image Text:
 							<input
 								name={`image-text-${i}`}
-								onChange={event => setImageText(event.currentTarget.value)}
+								onChange={event => setContent(event.currentTarget.value)}
 								placeholder="CSS Query"
 								type="text"
-								value={replacementText.imageText}
+								value={replacementText.content}
 							/>
 						</label>
 						<label>
 							Alt Text:
 							<input
 								name={`alt-text-${i}`}
-								onChange={event => setAltText(event.currentTarget.value)}
+								onChange={event => setAlt(event.currentTarget.value)}
 								type="text"
-								value={replacementText.altText}
+								value={replacementText.alt}
 							/>
 						</label>
 						(Optional)
@@ -201,9 +173,9 @@ function App() {
 							Image Class:
 							<input
 								name={`image-class-${i}`}
-								onChange={event => setClassName(event.currentTarget.value)}
+								onChange={event => setClass(event.currentTarget.value)}
 								type="text"
-								value={replacementText.className}
+								value={replacementText.class}
 							/>
 						</label>
 						(Optional)
@@ -218,7 +190,7 @@ function App() {
 				id="pre-css"
 				name="pre-css"
 				onChange={event => setPreCSS(event.currentTarget.value)}
-				value={preCSS}
+				value={config.css.pre}
 			></textarea>
 			<label htmlFor="post-css">Custom Post CSS</label>
 			<textarea
@@ -227,7 +199,7 @@ function App() {
 				id="post-css"
 				name="post-css"
 				onChange={event => setPostCSS(event.currentTarget.value)}
-				value={postCSS}
+				value={config.css.post}
 			></textarea>
 
 			<button
@@ -253,8 +225,8 @@ function App() {
 
 						const {html, imgs} = await processPage(
 							doc,
-							{pageName, preCSS},
-							text2convert
+							{pageName, preCSS: config.css.pre},
+							config.img
 						)
 
 						setConvertedImgs(convertedImgs.concat(imgs))

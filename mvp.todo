@@ -50,7 +50,8 @@
 	[x] share api/upload-files between client/server
 [] UX
 	[] Add a download config button.
-		[] Add a version number to the file
+		[x] overhauled/centralized config and its types
+		[x] Add a version number to the file
 		[] Add a link to the repo for use with repo url note?
 		[] Allow users to specify the output image resolution
 		[] make the CSS styles path configurable (or UUID-able)
@@ -58,6 +59,7 @@
 	[] Drag and drop two files onto a drop zone
 		[] ebook support
 		[] autofill json config support
+			[] validate config file
 		[] auto focus the convert button after drag and drop
 		[] auto focus the file input on load
 	[] images
@@ -72,3 +74,7 @@
 	[] default to HTTP with a warning if those HTTPS envars/files aren't found.
 	[] encourage users to validate the epub (beyond the scope of this 80:20 project)
 	[] serve index.html at /
+[] Optional
+	[] adjust jpg quality
+	[] PNG exports (for transparency support)
+	[] bgcolor options?
