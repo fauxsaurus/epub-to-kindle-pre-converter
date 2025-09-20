@@ -24,6 +24,9 @@
 	[x] load each file
 	[x] successfully query the iframe
 	[x] draw all found text to images
+		[x] ensure that no styling contaminates the generated SVGs
+		[x] line wrap long text
+		[x] Allow users to specify custom pre CSS (to get a larger text size on the images)
 	[x] list generated images in below in an output section (under the file name in which they appear),
 	[x] replace the markup
 		[x] remove alt text markup (if it exists)
@@ -40,21 +43,32 @@
 	[x] client: download the file
 	[x] send the epub
 	[x] verify that the contents truly changed
-	[] validate the epub (should this have been done at the beginning of upload process)
 [x] client (download new epub)
 	[x] initiate an auto download (might not be able to do that without the click... not a problem with `.click()`)
 	[x] download name = file.name-pre-converted-accessible-kindle.epub
-[] cleanup
-	[] revoke preview urls when clearing them
-	[] improve error handling on all HTTP requests
+[x] cleanup
 	[x] share api/upload-files between client/server
 [] UX
-	[] improve it (by updating the UI)
-	[] Ensure that the new UI is accessible (as that's the point of this _entire_ exercise)!
-	[x] Allow users to specify custom pre CSS (to get a larger text size on the images)
-	[] Allow users to specify the output image resolution
-	[] make the CSS styles path configurable
-	[] ensure that no styling contaminates the generated SVGs
-	[x] Line wrap long text
-	[] query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
-	[] consider either dropping unnecessary HTTPS support for a zero config setup _OR_ better yet, default to HTTP with a warning if those files aren't found.
+	[] Add a download config button.
+		[] Add a version number to the file
+		[] Add a link to the repo for use with repo url note?
+		[] Allow users to specify the output image resolution
+		[] make the CSS styles path configurable (or UUID-able)
+			[] ALT query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
+	[] Drag and drop two files onto a drop zone
+		[] ebook support
+		[] autofill json config support
+		[] auto focus the convert button after drag and drop
+		[] auto focus the file input on load
+	[] images
+		[] give an option to clear images (and revoke the blob URLs when doing so)
+		[] Add labels derived from a change in file paths (constantly checking for a difference in the chapter name in the url) between images to show what chapter are in order by extracting the chapter name from the file.
+		[] read the TOC or index thing to determine the order for the server to send chapter files in
+	[] improve UI
+		[] Show encountered errors for all HTTP requests in the UI!
+		[] cleanup the internals
+		[] prettify the externals
+		[] Ensure that the new UI is accessible (as that's the point of this _entire_ exercise)!
+	[] default to HTTP with a warning if those HTTPS envars/files aren't found.
+	[] encourage users to validate the epub (beyond the scope of this 80:20 project)
+	[] serve index.html at /
