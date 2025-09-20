@@ -55,9 +55,9 @@ function App() {
 		// concat files
 		const files: [IFileName, Blob][] = [
 			/** @note this name cannot be in the epub already (in order to prevent overwriting existing files) */
-			['kindle-accessible-img-styles.css', text2blob({css: config.css.post})],
+			['kindle-accessible-img-styles.css', text2blob('text/css', config.css.post)],
 			...Object.entries(updatedHTML).map(
-				([src, html]) => [src, text2blob({html})] as [IFileName, Blob]
+				([src, html]) => [src, text2blob('text/html', html)] as [IFileName, Blob]
 			),
 			...convertedImgs.map(imgData => [imgData.src, imgData.blob] as [IFileName, Blob]),
 		]
@@ -254,7 +254,4 @@ function App() {
 
 export default App
 
-const text2blob = (object: Record<string, string>) => {
-	const [ext, content] = Object.entries(object)[0]
-	return new Blob([content], {type: `text/${ext}`})
-}
+const text2blob = (content: string, mimeType: string) => new Blob([content], {type: mimeType})
