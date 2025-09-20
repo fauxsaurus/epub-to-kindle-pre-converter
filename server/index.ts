@@ -56,6 +56,11 @@ const upload = multer({storage: storage})
 
 const state: {zip?: AdmZip} = {}
 
+app.use((req, _, next) => {
+	console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`)
+	next()
+})
+
 app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: Response) => {
 	const validationResult = EbookUploadSchema.safeParse(req.file)
 
@@ -143,8 +148,6 @@ app.get('/*filepath', async (req: Request, res: Response) => {
 	/** @note serve client files */
 	if (!filePath.includes('/') || filePath.startsWith('assets/')) {
 		const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
-
-		console.log(path.join(process.cwd(), `/client/dist/${filePath}`))
 
 		return res
 			.status(200)
