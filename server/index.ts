@@ -144,21 +144,17 @@ app.get('/', (_, res) =>
 /** @note Serves epub files directly from zip. */
 app.get('/*filepath', async (req: Request, res: Response) => {
 	const filePath = (req.params.filepath as unknown as []).join('/') || 'index.html'
+	const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
 
 	/** @note serve client files */
-	if (!filePath.includes('/') || filePath.startsWith('assets/')) {
-		const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
-
+	if (!filePath.includes('/') || filePath.startsWith('assets/'))
 		return res
 			.status(200)
 			.setHeader('Content-Type', mimeType)
 			.sendFile(path.join(process.cwd(), `/client/dist/${filePath}`))
-	}
 
 	const zipEntry = state.zip?.getEntry(filePath)
 	if (!zipEntry) return res.status(404).json({error: `File "${filePath}" not found.`})
-
-	const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
 
 	res.status(200).setHeader('Content-Type', mimeType).send(zipEntry.getData())
 })
