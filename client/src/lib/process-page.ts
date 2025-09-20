@@ -1,19 +1,19 @@
+import type {IConfig} from './config'
 import {el2imgBlob} from './el2img-blob'
 import {getFile} from './request'
-import type {ICssRules, IReplacementText} from './types'
+
+type IOptions = {assetDir: string; pageName: string; preCSS: IConfig['css']['pre']}
 
 export const processPage = async (
 	doc: Document,
-	{preCSS, pageName}: {preCSS: ICssRules; pageName: string},
-	text2convert: IReplacementText[]
+	{assetDir, pageName, preCSS}: IOptions,
+	text2convert: IConfig['img']
 ) => {
 	// query elements to replace
 	const elements2replace = text2convert.flatMap(replacementText => {
-		const imgTexts = doc.querySelectorAll(replacementText.imageText)
-		const altTexts = replacementText.altText
-			? doc.querySelectorAll(replacementText.altText)
-			: []
-		const {className} = replacementText
+		const imgTexts = doc.querySelectorAll(replacementText.content)
+		const altTexts = replacementText.alt ? doc.querySelectorAll(replacementText.alt) : []
+		const className = replacementText.class
 
 		return Array.from(imgTexts).map((imgTextEl, i) => {
 			return {imgText: imgTextEl, altTextEl: altTexts[i] ?? undefined, className}
@@ -27,7 +27,7 @@ export const processPage = async (
 
 	// generate images
 	const imgs = await Promise.all(
-		elements2replace.map(async ({altTextEl, className, imgText}, i) => {
+		elements2replace.map(async ({altTextEl, className = '', imgText}, i) => {
 			const alt = getAltText(altTextEl ?? imgText)
 			const blob = await el2imgBlob(imgText)
 			const previewUrl = URL.createObjectURL(blob)
@@ -44,7 +44,7 @@ export const processPage = async (
 	if (preCSS) style.remove()
 
 	// get new HTML
-	doc.head.innerHTML += `<link href="../kindle-accessible/style.css" rel="stylesheet" type="text/css"/>`
+	doc.head.innerHTML += `<link href="../${assetDir}style.css" rel="stylesheet" type="text/css"/>`
 
 	const {data: oldHtml, errors} = await getFile(doc.location.href)
 	if (errors.length) throw new Error(errors[0])

@@ -29,6 +29,7 @@ function App() {
 
 	const setText2convert = (img: IConfig['img']) => setConfig(Object.assign({}, config, {img}))
 
+	const [assetDir, setAssetDir] = useState('')
 	const [files2convert, setFiles2convert] = useState<string[]>([])
 	const [convertedImgs, setConvertedImgs] = useState<IConvertedImg[]>([])
 	const [updatedHTML, setUpdatedHTML] = useState<Record<IFileName, string>>({})
@@ -89,10 +90,11 @@ function App() {
 
 		if (!oldEbook) return // @todo add error, but this shouldn't happen due to disabled.
 
-		setFiles2convert(
-			(await uploadFiles(ROUTES.uploadEbook, {files: []}, [[oldEbook.name, oldEbook]])).data
-				.files
-		)
+		const fallback = {assetDir: '', files: []}
+		const res = await uploadFiles(ROUTES.uploadEbook, fallback, [[oldEbook.name, oldEbook]])
+
+		setAssetDir(res.data.assetDir)
+		setFiles2convert(res.data.files)
 	}
 
 	return (
@@ -225,7 +227,7 @@ function App() {
 
 						const {html, imgs} = await processPage(
 							doc,
-							{pageName, preCSS: config.css.pre},
+							{assetDir, pageName, preCSS: config.css.pre},
 							config.img
 						)
 
