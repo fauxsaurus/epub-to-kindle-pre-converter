@@ -57,9 +57,9 @@
 		[x] make the CSS styles directory unique
 	[] Drag and drop two files onto a drop zone
 		[x] add dropzone
-		[] ebook support
-		[] autofill json config support
-			[] validate config file
+		[x] ebook support
+		[x] autofill json config support
+			[x] validate config file
 		[] auto focus the convert button after drag and drop
 		[] auto focus the file input on load
 	[] images

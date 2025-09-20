@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
-import {CONFIG_IMG_TEMPLATE, DEFAULT_CONFIG} from './lib/config'
+import {CONFIG_IMG_TEMPLATE, DEFAULT_CONFIG, validateConfig} from './lib/config'
 import {type IConfig, type ICssQuery, type ICssRules} from './lib/config'
 import {getDragAndDropProps} from './lib/drag-and-drop-props'
 import {processPage} from './lib/process-page'
@@ -103,9 +103,27 @@ function App() {
 		setFiles2convert(res.data.files)
 	}
 
-	const setFiles = (files: File[]) => {
-		console.log(files)
-	}
+	const setFiles = (files: File[]) =>
+		files.forEach(async file => {
+			if (file.type === 'application/epub+zip') return setOldEbook(file)
+			if (file.type !== 'application/json') return
+
+			const json = await new Promise<string>((resolve, reject) => {
+				const onload = (event: ProgressEvent<FileReader>) => {
+					const content = event.target?.result
+					if (typeof content !== 'string') return reject(new Error('Bad Config File'))
+
+					resolve(JSON.parse(content))
+				}
+
+				Object.assign(new FileReader(), {onload}).readAsText(file)
+			})
+
+			const {data, errors} = validateConfig(json)
+			if (errors.length) return
+
+			setConfig(data)
+		})
 
 	return (
 		<form
