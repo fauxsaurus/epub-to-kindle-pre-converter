@@ -5,6 +5,7 @@ import {getFile, uploadFiles} from './lib/request'
 import type {IConvertedImg, ICssQuery, ICssRules, IFileName, IReplacementText} from './lib/types'
 
 const REPLACEMENT_TEXT_TEMPLATE = {altText: '', className: 'kindle-accessible-image', imageText: ''}
+import {download} from './lib/download'
 
 const validateCssQuery = (query: ICssQuery) => {
 	try {
@@ -48,15 +49,6 @@ const TMP_CSS_RULES: IReplacementText[] = [
 		imageText: '[lang="ko"]',
 	},
 ]
-
-const downloadEbook = (download: IFileName, blob: Blob) => {
-	const href = URL.createObjectURL(blob)
-	const link = Object.assign(document.createElement('a'), {download, hidden: true, href})
-
-	document.body.appendChild(link).click()
-
-	setTimeout(() => (URL.revokeObjectURL(href), document.body.removeChild(link)), 0)
-}
 
 function App() {
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
@@ -105,7 +97,7 @@ function App() {
 			const fileName =
 				oldEbook?.name.split('.').slice(0, -1).join('.') + `-v-accessible-kindle.epub`
 
-			downloadEbook(fileName, await data!.blob())
+			download(fileName, await data!.blob())
 		})
 	}, [
 		convertedImgs,
