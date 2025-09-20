@@ -141,7 +141,7 @@ app.get('/*filepath', async (req: Request, res: Response) => {
 	const filePath = (req.params.filepath as unknown as []).join('/') || 'index.html'
 
 	/** @note serve client files */
-	if (!filePath.includes('/') || filePath.includes('assets/')) {
+	if (!filePath.includes('/') || filePath.startsWith('assets/')) {
 		const mimeType = mime.lookup(filePath.split('/').slice(-1)[0])
 
 		console.log(path.join(process.cwd(), `/client/dist/${filePath}`))
