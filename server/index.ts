@@ -54,7 +54,7 @@ const port = 3000
 const storage = multer.memoryStorage()
 const upload = multer({storage: storage})
 
-const state: {zip?: AdmZip} = {}
+const state: {assetDir: string; zip?: AdmZip} = {assetDir: ''}
 
 app.use((req, _, next) => {
 	console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`)
@@ -74,12 +74,24 @@ app.post(ROUTES.uploadEbook, upload.single('files'), async (req: Request, res: R
 
 	state.zip = new AdmZip(Buffer.from(await file.arrayBuffer()))
 
-	const textFiles = state.zip
+	const [files, dirs] = state.zip
 		.getEntries()
-		.filter(entry => entry.entryName.startsWith('OEBPS/text') && !entry.isDirectory)
-		.map(entry => entry.entryName) // Get just the filename
+		.reduce(
+			(lrFilter, entry) => (
+				lrFilter[entry.isDirectory ? 1 : 0].push(entry.entryName), lrFilter
+			),
+			[[], []] as [string[], string[]]
+		)
 
-	if (textFiles.length) return res.status(200).json({files: textFiles})
+	// set asset directory (ensuring that it is a unique name that does not exist in the epub)
+	let i = 0
+	const getAssetDir = () => `kindle-accessible${i ? `-${i}` : ''}/`
+	while (dirs.includes('OEBPS/' + getAssetDir())) i += 1
+	state.assetDir = getAssetDir()
+
+	// return data
+	const htmlFiles = files.filter(file => file.endsWith('html'))
+	if (htmlFiles.length) return res.status(200).json({assetDir: state.assetDir, files: htmlFiles})
 
 	res.status(500).json({
 		error: 'Did not find any text files.',
@@ -109,7 +121,7 @@ app.post(ROUTES.uploadFiles, upload.array('files'), async (req, res) => {
 
 		// insert file
 		if (oldEntryI === -1)
-			return void state.zip!.addFile('OEBPS/kindle-accessible/' + newFileName, buffer)
+			return void state.zip!.addFile(`OEBPS/${state.assetDir}${newFileName}`, buffer)
 
 		// update file
 		const fullPath = state.zip!.getEntries()[oldEntryI].entryName
