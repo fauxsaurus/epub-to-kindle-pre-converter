@@ -56,6 +56,7 @@
 		[x] Add a link to the repo for use with repo url note?
 		[x] make the CSS styles directory unique
 	[] Drag and drop two files onto a drop zone
+		[x] add dropzone
 		[] ebook support
 		[] autofill json config support
 			[] validate config file

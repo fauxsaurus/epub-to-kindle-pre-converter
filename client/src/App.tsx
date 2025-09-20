@@ -2,10 +2,13 @@ import {useEffect, useState} from 'react'
 import {ROUTES} from '../../shared/routes'
 import {CONFIG_IMG_TEMPLATE, DEFAULT_CONFIG} from './lib/config'
 import {type IConfig, type ICssQuery, type ICssRules} from './lib/config'
+import {getDragAndDropProps} from './lib/drag-and-drop-props'
 import {processPage} from './lib/process-page'
 import {getFile, uploadFiles} from './lib/request'
 import type {IConvertedImg, IFileName} from './lib/types'
 import {download} from './lib/download'
+
+import './assets/form.css'
 
 const validateCssQuery = (query: ICssQuery) => {
 	try {
@@ -19,6 +22,9 @@ const validateCssQuery = (query: ICssQuery) => {
 
 function App() {
 	const [config, setConfig] = useState<IConfig>(DEFAULT_CONFIG)
+
+	const [dragging, setDragging] = useState(false)
+
 	const [oldEbook, setOldEbook] = useState<File | undefined>(undefined)
 
 	const setPreCSS = (pre: ICssRules) =>
@@ -97,8 +103,15 @@ function App() {
 		setFiles2convert(res.data.files)
 	}
 
+	const setFiles = (files: File[]) => {
+		console.log(files)
+	}
+
 	return (
-		<form onSubmit={event => onSubmit(event)}>
+		<form
+			{...getDragAndDropProps({dragging, setDragging, setFiles})}
+			onSubmit={event => onSubmit(event)}
+		>
 			{!oldEbook && (
 				<ul data-validation="error">
 					<li>Need a valid epub.</li>
