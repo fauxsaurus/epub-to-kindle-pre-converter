@@ -128,6 +128,14 @@ app.get(ROUTES.downloadEbook, async (_, res) => {
 	res.send(buffer)
 })
 
+/** @note server index.html */
+app.get('/', (_, res) =>
+	res
+		.status(200)
+		.setHeader('Content-Type', 'text/html')
+		.sendFile(path.join(process.cwd(), `/client/dist/index.html`))
+)
+
 /** @note Serves epub files directly from zip. */
 app.get('/*filepath', async (req: Request, res: Response) => {
 	const filePath = (req.params.filepath as unknown as []).join('/') || 'index.html'

@@ -49,11 +49,11 @@
 [x] cleanup
 	[x] share api/upload-files between client/server
 [] UX
+	[x] serve index.html at /
 	[] Add a download config button.
 		[x] overhauled/centralized config and its types
 		[x] Add a version number to the file
 		[x] Add a link to the repo for use with repo url note?
-		[] Allow users to specify the output image resolution
 		[] make the CSS styles path configurable (or UUID-able)
 			[] ALT query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
 	[] Drag and drop two files onto a drop zone
@@ -73,8 +73,8 @@
 		[] Ensure that the new UI is accessible (as that's the point of this _entire_ exercise)!
 	[] default to HTTP with a warning if those HTTPS envars/files aren't found.
 	[] encourage users to validate the epub (beyond the scope of this 80:20 project)
-	[] serve index.html at /
 [] Optional
+	[] Allow users to specify the output image resolution (currently defaults to setting the <iframe> to 1000--roughly the width of many kindles--and then allowing the elements to replace to take up as much space as is natural under that constraint)
 	[] adjust jpg quality
 	[] PNG exports (for transparency support)
 	[] bgcolor options?
