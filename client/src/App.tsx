@@ -212,6 +212,16 @@ function App() {
 			>
 				Convert
 			</button>
+			<button
+				onClick={() => {
+					const fileName = 'az-epub-accessibility-config.json'
+					const content = JSON.stringify(config, null, 4)
+
+					download(fileName, text2blob(content, 'application/json'))
+				}}
+			>
+				Download Config
+			</button>
 			<output>{files2convert.join(', ')}</output>
 			{!!files2convert.length && (
 				<iframe

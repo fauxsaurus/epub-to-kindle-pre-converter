@@ -50,12 +50,11 @@
 	[x] share api/upload-files between client/server
 [] UX
 	[x] serve index.html at /
-	[] Add a download config button.
+	[x] Add a download config button.
 		[x] overhauled/centralized config and its types
 		[x] Add a version number to the file
 		[x] Add a link to the repo for use with repo url note?
-		[] make the CSS styles path configurable (or UUID-able)
-			[] ALT query iframe to ensure that [href="../styles/accessible-kindle.css"] does not exist before adding
+		[x] make the CSS styles directory unique
 	[] Drag and drop two files onto a drop zone
 		[] ebook support
 		[] autofill json config support
